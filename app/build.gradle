@@ -21,24 +21,30 @@ android {
         xiaomi {
             manifestPlaceholders = [UMENG_CHANNEL_VALUE: "xiaomi"]
         }
+//
+//       baidu {
+//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "baidu"]
+//        }
+//
+//        c360 {
+//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "360"]
+//        }
+//
+//        huawei {
+//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "huawei"]
+//        }
+//        meizu {
+//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "meizu"]
+//        }
+//        bmob {
+//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "bmob"]
+//        }
+    }
+    packagingOptions {
+        exclude 'META-INF/ASL2.0'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
 
-       baidu {
-            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "baidu"]
-        }
-
-        c360 {
-            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "360"]
-        }
-
-        huawei {
-            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "huawei"]
-        }
-        meizu {
-            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "meizu"]
-        }
-        bmob {
-            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "bmob"]
-        }
     }
 }
 
@@ -55,4 +61,20 @@ dependencies {
     compile 'me.zhanghai.android.patternlock:library:2.0.1'
     compile 'com.squareup:android-times-square:1.6.4@aar'
     compile 'com.umeng.analytics:analytics:latest.integration'
+
+    // https://mvnrepository.com/artifact/org.codehaus.jackson/jackson-core-asl
+    compile group: 'org.codehaus.jackson', name: 'jackson-core-asl', version: '1.9.9'
+// https://mvnrepository.com/artifact/org.codehaus.jackson/jackson-mapper-asl
+    compile group: 'org.codehaus.jackson', name: 'jackson-mapper-asl', version: '1.9.9'
+
+    compile files('libs/activation.jar')
+    compile files('libs/additionnal.jar')
+    compile files('libs/mail.jar')
+    compile files('libs/volley.jar')
 }
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+}
+

@@ -11,16 +11,26 @@ import android.view.KeyEvent;
 import android.view.WindowManager;
 
 import com.liu.Account.Constants.Constants;
+import com.liu.Account.Constants.MethodConstant;
 import com.liu.Account.Constants.TagConstats;
 import com.liu.Account.R;
 import com.liu.Account.commonUtils.AppUtil;
+import com.liu.Account.commonUtils.DateUtil;
 import com.liu.Account.commonUtils.LogUtil;
 import com.liu.Account.commonUtils.PrefsUtil;
+import com.liu.Account.commonUtils.ToastUtil;
 import com.liu.Account.initUtils.Init;
+import com.liu.Account.module.Hook.DefaultErrorHook;
+import com.liu.Account.module.dataobject.AccessLogDo;
+import com.liu.Account.network.beans.JsonReceive;
+import com.liu.Account.network.beans.ResponseHook;
 import com.liu.Account.utils.DatabaseUtil;
+import com.liu.Account.utils.HttpUtil;
 import com.umeng.analytics.MobclickAgent;
 import com.zhy.autolayout.AutoLayoutActivity;
 
+import java.sql.Date;
+import java.util.Calendar;
 import java.util.List;
 
 import me.zhanghai.android.patternlock.ConfirmPatternActivity;
@@ -73,6 +83,25 @@ public class LaunchActivity extends ConfirmPatternActivity {
         //默认Tag
         PrefsUtil dddd=new PrefsUtil(context,Constants.DefaultTag,Context.MODE_PRIVATE);
         TagConstats.defaultTag=dddd.getInt("tagPos",1);
+
+        AccessLogDo request=new AccessLogDo();
+        Calendar calendar=Calendar.getInstance();
+        request.setAccessTime(new Date(calendar.getTimeInMillis()));
+        request.setAndroidAPI(21);
+        request.setAndroidVersion("android5.1");
+        request.setChannel("channel");
+        request.setPhoneType("test from android");
+        request.setIsDeleted('N');
+
+        HttpUtil.post(MethodConstant.ADD_ACCESSLOG, request, new ResponseHook() {
+            @Override
+            public void deal(Context context, JsonReceive receive) {
+                AccessLogDo response = (AccessLogDo) receive.getResponse();
+                if (null != response) {
+                    ToastUtil.showShort(context,"发送成功");
+                }
+            }
+        }, new DefaultErrorHook(), AccessLogDo.class);
     }
 
     private void initDB() {
