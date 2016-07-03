@@ -10,7 +10,6 @@ import com.liu.Account.network.NetworkManager;
  * Created by deonte on 16-1-28.
  */
 public class ApplicationDatas extends Application {
-    private static Context context;
     SearchView searchView;
 
     public SearchView getSearchView() {
@@ -24,7 +23,7 @@ public class ApplicationDatas extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        context=this;
+        Context context = this;
         NetworkManager.getInstance().init(context);
     }
 }

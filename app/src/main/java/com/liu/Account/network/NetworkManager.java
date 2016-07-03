@@ -14,11 +14,13 @@ import com.android.volley.toolbox.NetworkImageView;
 import com.android.volley.toolbox.Volley;
 import com.liu.Account.network.beans.ErrorHook;
 import com.liu.Account.network.beans.ResponseHook;
+import com.liu.Account.network.beans.ResponseHookDeal;
 import com.liu.Account.network.utils.Constants;
 import com.liu.Account.network.utils.JsonParseUtil;
 import com.liu.Account.network.utils.LogType;
 import com.liu.Account.network.utils.LogUtil;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -80,7 +82,7 @@ public class NetworkManager {
      * @param responses    响应的实体类class数组
      */
     public void post(final String method, final Object request,
-                     final ResponseHook responseHook, final ErrorHook errorHook,
+                     final ResponseHookDeal responseHook, final ErrorHook errorHook,
                      final Class<?>... responses) {
         new Thread() {
             @Override
@@ -91,37 +93,30 @@ public class NetworkManager {
                             method, request, mContext);
                     Log.i("NetworkManager",
                             "请求封装完成：" + jsonRequest.toString());
+                    String Url= null;
+                    try {
+                        Url = Constants.URL+jsonRequest.getString("method");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                     JsonObjectRequest req = new JsonObjectRequest(Method.POST,
-                            Constants.URL, jsonRequest,
+                            Url, jsonRequest,
                             new Listener<JSONObject>() {
                                 @Override
                                 public void onResponse(JSONObject json) {
                                     // 请求成功响应，将JSONObject转换成JsonReceive
-                                    LogUtil.log("NetworkManager",
-                                            LogType.DEBUG, getClass(), "请求成功："
+                                    Log.i("NetworkManager",
+                                              "请求成功："
                                                     + json.toString());
-//                                    if (JsonParseUtil.jsonParseBean(
-//                                            json, responses).getStatus() == 333) {
-//                                        LogUtil.log("NetworkManager", LogType.DEBUG, getClass(),
-//                                                "重复登录：错误码333");
-//                                        ToastUtils.showShort(BimuApplication.getContext(), "您的帐户已在其他设备登录");
-//                                        LoginUtils.setLoginStatus(false);
-//                                        hideProgressWait();
-//                                        return;
-//                                    }
-                                    if (responseHook != null) {
-                                        responseHook.deal(mContext,
-                                                JsonParseUtil.jsonParseBean(
-                                                        json, responses));
-                                    }
+                                    if (responseHook != null) responseHook.deal(mContext, json);
                                 }
                             }, new ErrorListener() {
 
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             // 请求失败
-                            LogUtil.log("NetworkManager",
-                                    LogType.ERROR, getClass(), "请求失败: \n" + error.toString());
+                            Log.e("NetworkManager",
+                                    "请求失败: \n" + error.toString());
                             if (errorHook != null) {
                                 errorHook.deal(mContext, error);
                             }

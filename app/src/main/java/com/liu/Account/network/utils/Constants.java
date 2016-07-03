@@ -17,7 +17,7 @@ public class Constants {
 	 */
 	// TODO: 2016/3/21 这里根据比目的具体数据修改
 //	public static String URL = "http://112.124.3.197:8016/bimu/interface/test_bound.php";
-	public static String URL = "http://app.bimuwang.com/bimu/interface/test_bound.php";
+	public static String URL = "http://114.215.92.152:8026/api/jizhangyi/";
 	public static String APPKEY = "888";
 	public static final int RTIMES = 1;
 	public static String SECRET = "567745674567544";

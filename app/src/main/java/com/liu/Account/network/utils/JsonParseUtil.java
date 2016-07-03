@@ -75,17 +75,18 @@ public class JsonParseUtil {
 			Class<?>... responses) {
 		JsonReceive receive = new JsonReceive();
 		try {
-			receive.setMethod(json.getString("method"));
-			receive.setStatus(json.getInt("status"));
-			receive.setTimes_used(json.getLong("times_used"));
+//			receive.setMethod(json.getString("method"));
+//			receive.setStatus(json.getInt("status"));
+//			receive.setTimes_used(json.getLong("times_used"));
 			receive.setTimestamp(json.getLong("timestamp"));
-			receive.setError(json.getString("error"));
+//			receive.setError(json.getString("error"));
 			Object response = null;
 			if(responses.length > 0){
 				 response = jsonParseResponse(
 							(JSONObject) json.get("response"), responses);
 			}else{
-				LogUtil.log(LogType.ERROR, JsonParseUtil.class, "未传入响应的Response实体类class对象");
+				response=(JSONObject) json.get("response");
+				LogUtil.log(LogType.WARNING, JsonParseUtil.class, "未传入响应的Response实体类class对象");
 			}
 			receive.setResponse(response);
 		} catch (JSONException e) {

@@ -92,16 +92,7 @@ public class LaunchActivity extends ConfirmPatternActivity {
         request.setChannel("channel");
         request.setPhoneType("test from android");
         request.setIsDeleted('N');
-
-        HttpUtil.post(MethodConstant.ADD_ACCESSLOG, request, new ResponseHook() {
-            @Override
-            public void deal(Context context, JsonReceive receive) {
-                AccessLogDo response = (AccessLogDo) receive.getResponse();
-                if (null != response) {
-                    ToastUtil.showShort(context,"发送成功");
-                }
-            }
-        }, new DefaultErrorHook(), AccessLogDo.class);
+        HttpUtil.sendAccessLog(request);
     }
 
     private void initDB() {
