@@ -1,6 +1,7 @@
 package com.liu.Account.network.utils;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.liu.Account.network.beans.JsonPost;
 import com.liu.Account.network.beans.JsonReceive;
@@ -82,11 +83,12 @@ public class JsonParseUtil {
 //			receive.setError(json.getString("error"));
 			Object response = null;
 			if(responses.length > 0){
+				Log.i("NetworkManager","11");
 				 response = jsonParseResponse(
 							(JSONObject) json.get("response"), responses);
 			}else{
-				response=(JSONObject) json.get("response");
-				LogUtil.log(LogType.WARNING, JsonParseUtil.class, "未传入响应的Response实体类class对象");
+				Log.i("NetworkManager","12");
+				response=json.get("response");
 			}
 			receive.setResponse(response);
 		} catch (JSONException e) {

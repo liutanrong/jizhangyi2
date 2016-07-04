@@ -17,4 +17,6 @@ public class Constants {
     public static String DatabasePath="/data/data/com.liu.Account/databases/";
 
     public static final String PatternLock="patternLock";
+
+    public static final String USER_SETTING_PRFIX="user_setting_sp";
 }

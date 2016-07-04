@@ -141,7 +141,7 @@ public class DeviceInformation extends Activity{
             }
         });
     }
-    private static String getMetaData(Context context, String key) {
+    public static String getMetaData(Context context, String key) {
 
         try {
 

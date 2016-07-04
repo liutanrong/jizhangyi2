@@ -375,7 +375,49 @@ public class AppUtil {
         Log.d("AppUtils","当前设备IMEI码: " + deviceId);
         return deviceId;
     }
+    /**
+     * 获取设备id（IMEI）
+     *
+     * @param context
+     * @return
+     * @author wangjie
+     */
+    @TargetApi(Build.VERSION_CODES.CUPCAKE)
+    public static String getDeviceIMSI(Context context) {
+        if(context==null){
+            Log.e("AppUtils:", "传入context为空");
+            return null;
+        }
+        String deviceId;
+        if (isPhone(context)) {
+            TelephonyManager telephony = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+            deviceId = telephony.getSubscriberId();
+        } else {
+            deviceId = "";
+        }
+        Log.d("AppUtils","当前设备IMSI码: " + deviceId);
+        return deviceId;
+    }
 
+    /**
+     * 取得本机电话号码，有的可得有的不可得
+     * @return
+     */
+    public static String getPhoneNum(Context context){
+        if(context==null){
+            Log.e("AppUtils:", "传入context为空");
+            return null;
+        }
+        String phoneNum;
+        if (isPhone(context)) {
+            TelephonyManager telephony = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+            phoneNum = telephony.getLine1Number();
+        } else {
+            phoneNum = "";
+        }
+        Log.d("AppUtils","当前设备PhoneNum: " + phoneNum);
+        return phoneNum;
+    }
     /**
      * 获取设备mac地址
      *
@@ -398,6 +440,22 @@ public class AppUtil {
         }
         macAddress = macAddress.replace(":", "");
         return macAddress;
+    }
+
+    /**
+     * 取得Android版本
+     * @return
+     */
+    public static String getAndroidVersion() {
+        return  Build.VERSION.RELEASE;
+    }
+
+    /**
+     * 取得Android API LEVEL
+     * @return
+     */
+    public static int getAndroidApi(){
+        return Build.VERSION.SDK_INT;
     }
 
     /**

@@ -5,4 +5,8 @@ package com.liu.Account.Constants;
  */
 public class MethodConstant {
     public static final String ADD_ACCESSLOG="accessLog/add";
+    public static final String GET_INSTALLID="installation/getInstallId";
+    public static final String UPDDATE_INSTALLATION="installation/update";
+
+    public static final String ADD_EVENTLOG="eventLog/add";
 }

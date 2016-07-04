@@ -1,27 +1,37 @@
 package com.liu.Account.utils;
 
 import android.content.Context;
+import android.location.Location;
 import android.util.Log;
 
 import com.liu.Account.Constants.MethodConstant;
+import com.liu.Account.commonUtils.AppUtil;
 import com.liu.Account.commonUtils.ToastUtil;
+import com.liu.Account.initUtils.DeviceInformation;
 import com.liu.Account.module.Hook.DefaultErrorHook;
 import com.liu.Account.module.dataobject.AccessLogDo;
+import com.liu.Account.module.dataobject.EventLogDo;
+import com.liu.Account.module.dataobject.InstallationDo;
 import com.liu.Account.network.NetworkManager;
 import com.liu.Account.network.beans.ErrorHook;
 import com.liu.Account.network.beans.JsonReceive;
 import com.liu.Account.network.beans.ResponseHook;
 import com.liu.Account.network.beans.ResponseHookDeal;
 import com.liu.Account.network.utils.JsonParseUtil;
+import com.liu.Account.network.utils.LogUtil;
+import com.liu.Account.view.emojicon.emoji.Objects;
 
 import org.json.JSONObject;
+
+import java.util.Calendar;
+
+import cn.bmob.v3.BmobUser;
 
 /**
  * Created by tanrong on 16/6/30.
  */
 public class HttpUtil {
     /**
-     * 在原来的post基础上添加了网络状态的判断
      *
      * @param method
      * @param request
@@ -35,16 +45,45 @@ public class HttpUtil {
             NetworkManager.getInstance().post(method, request, new ResponseHookDeal() {
                 @Override
                 public void deal(Context context, JSONObject json) {
-                    if (responses!=null&&responses.length>0)
+                    if (responses!=null&&responses.length>0) {
                         responseHook.deal(context, JsonParseUtil.jsonParseBean(
-                                    json, responses));
-                    else
-                        responseHook.deal(context,JsonParseUtil.jsonParseBean(json));
+                                json, responses));
+                    }
+                    else {
+                        responseHook.deal(context, JsonParseUtil.jsonParseBean(json));
+                    }
                 }
             }, errorHook, responses);
 
     }
-    public static void sendAccessLog(AccessLogDo logDo){
+
+    /**
+     * 打开应用即上传信息
+     * @param context
+     */
+    public static void sendAccessLog(Context context){
+        AccessLogDo logDo=new AccessLogDo();
+        Calendar calendar=Calendar.getInstance();
+        logDo.setAccessTime(calendar.getTimeInMillis());
+        logDo.setChannel(DeviceInformation.getMetaData(context,"CHANNEL"));
+        logDo.setInstallationId(UserSettingUtil.getInstallationId(context));
+        logDo.setUserId(UserSettingUtil.getUserId(context));
+
+        logDo.setVersionName(AppUtil.getAppVersionName(context));
+        logDo.setVersionCode(AppUtil.getAppVersionCode(context));
+        logDo.setAndroidVersion(AppUtil.getAndroidVersion());
+        logDo.setAndroidAPI(AppUtil.getAndroidApi());
+        logDo.setPhoneType(AppUtil.getPhoneModel());
+        logDo.setImei(AppUtil.getDeviceIMEI(context));
+        logDo.setImsi(AppUtil.getDeviceIMSI(context));
+        logDo.setDeviceType();
+
+        String location="0,0";
+        Location location1=LocationUtils.getLocation(context);
+        if (location1!=null){
+            location=location1.getLatitude()+","+location1.getLongitude();
+        }
+        logDo.setLocation(location);
 
         HttpUtil.post(MethodConstant.ADD_ACCESSLOG, logDo, new ResponseHook() {
             @Override
@@ -54,5 +93,72 @@ public class HttpUtil {
                 }
             }
         }, new DefaultErrorHook());
+
+
+        InstallationDo installationDo=new InstallationDo();
+
+        installationDo.setId(UserSettingUtil.getInstallationId(context));
+        installationDo.setUserId(UserSettingUtil.getUserId(context));
+        BmobUser bmobUser=BmobUser.getCurrentUser(context);
+        if (bmobUser!=null){
+            installationDo.setEmail(bmobUser.getEmail());
+        }
+        installationDo.setPhoneNum(AppUtil.getPhoneNum(context));
+        installationDo.setPhoneType(logDo.getPhoneType());
+        installationDo.setImei(logDo.getImei());
+        installationDo.setImsi(logDo.getImsi());
+        installationDo.setVersionName(logDo.getVersionName());
+        installationDo.setVersionCode(logDo.getVersionCode());
+        installationDo.setAndroidVersion(logDo.getAndroidVersion());
+        installationDo.setAndroidAPI(logDo.getAndroidAPI());
+        installationDo.setChannel(logDo.getChannel());
+        installationDo.setDeviceType(logDo.getDeviceType());
+        HttpUtil.post(MethodConstant.UPDDATE_INSTALLATION, installationDo, new ResponseHook() {
+            @Override
+            public void deal(Context context, JsonReceive receive) {
+                if (null != receive.getResponse()) {
+                    ToastUtil.showShort(context,"发送成功"+receive.getResponse().toString());
+                }
+            }
+        }, new DefaultErrorHook());
+
+
+
     }
+
+
+    public static final String EVENT_ADD="ADD_BILL";
+    public static final String EVENT_DELETE="DELETE_BILL";
+    public static final String EVENT_SHOW="SHOW_BILL";
+    public static final String EVENT_MODIFY="MODIFY_BILL";
+
+
+    public static final String EVENT_DATA_UP="UP_DATA";
+    public static final String EVENT_DATA_AUTO_UP="AUTO_UP_DATE";
+    public static final String EVENT_DATA_DOWN="DATA_DOWNLOAD";
+
+    /**
+     * 发送操作事件
+     * @param context
+     * @param operationName
+     * @param afterOperation
+     */
+    public static void sendEventLog(Context context,String operationName,String afterOperation){
+        if (context==null||operationName==null||afterOperation==null)return;
+
+        EventLogDo eventLogDo=new EventLogDo();
+        eventLogDo.setUserId(UserSettingUtil.getUserId(context));
+        eventLogDo.setInstallationId(UserSettingUtil.getInstallationId(context));
+        eventLogDo.setOperationName(operationName);
+        eventLogDo.setExtension(afterOperation);
+
+        HttpUtil.post(MethodConstant.ADD_EVENTLOG, eventLogDo, new ResponseHook() {
+            @Override
+            public void deal(Context context, JsonReceive receive) {
+
+            }
+        },new DefaultErrorHook());
+    }
+
+
 }

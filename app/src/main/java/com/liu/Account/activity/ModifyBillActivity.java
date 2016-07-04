@@ -20,6 +20,8 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.liu.Account.BmobNetwork.BmobNetworkUtils;
 import com.liu.Account.Constants.Constants;
 import com.liu.Account.Constants.TagConstats;
@@ -32,6 +34,7 @@ import com.liu.Account.initUtils.StatusBarUtil;
 import com.liu.Account.model.AddBillData;
 import com.liu.Account.model.AddBillTagData;
 import com.liu.Account.utils.DatabaseUtil;
+import com.liu.Account.utils.HttpUtil;
 import com.liu.Account.utils.NumberUtil;
 import com.squareup.timessquare.CalendarPickerView;
 import com.umeng.analytics.MobclickAgent;
@@ -344,6 +347,13 @@ public class ModifyBillActivity extends AutoLayoutActivity {
             map.put("type","修改账单");
         }
         MobclickAgent.onEventValue(context, "modefiAccount", map, 0);
+        JSONObject dataJson=new JSONObject();
+        dataJson.put("creatTime",data.getDate());
+        dataJson.put("type",data.getType());
+        dataJson.put("tag",data.getTag());
+        dataJson.put("money",data.getMoney());
+        dataJson.put("remark",data.getRemark());
+        HttpUtil.sendEventLog(context,HttpUtil.EVENT_MODIFY, JSON.toJSONString(dataJson));
 
 
 

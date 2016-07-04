@@ -22,10 +22,12 @@ import com.liu.Account.commonUtils.ToastUtil;
 import com.liu.Account.initUtils.Init;
 import com.liu.Account.module.Hook.DefaultErrorHook;
 import com.liu.Account.module.dataobject.AccessLogDo;
+import com.liu.Account.module.dataobject.InstallationDo;
 import com.liu.Account.network.beans.JsonReceive;
 import com.liu.Account.network.beans.ResponseHook;
 import com.liu.Account.utils.DatabaseUtil;
 import com.liu.Account.utils.HttpUtil;
+import com.liu.Account.utils.UserSettingUtil;
 import com.umeng.analytics.MobclickAgent;
 import com.zhy.autolayout.AutoLayoutActivity;
 
@@ -84,15 +86,22 @@ public class LaunchActivity extends ConfirmPatternActivity {
         PrefsUtil dddd=new PrefsUtil(context,Constants.DefaultTag,Context.MODE_PRIVATE);
         TagConstats.defaultTag=dddd.getInt("tagPos",1);
 
-        AccessLogDo request=new AccessLogDo();
-        Calendar calendar=Calendar.getInstance();
-        request.setAccessTime(new Date(calendar.getTimeInMillis()));
-        request.setAndroidAPI(21);
-        request.setAndroidVersion("android5.1");
-        request.setChannel("channel");
-        request.setPhoneType("test from android");
-        request.setIsDeleted('N');
-        HttpUtil.sendAccessLog(request);
+        if (UserSettingUtil.getInstallationId(context)==null) {
+            //获取installId
+            InstallationDo installationDo = new InstallationDo();
+            installationDo.setImei(AppUtil.getDeviceIMEI(context));
+            HttpUtil.post(MethodConstant.GET_INSTALLID, installationDo, new ResponseHook() {
+                @Override
+                public void deal(Context context, JsonReceive receive) {
+                    if (receive.getResponse() != null) {
+                        Long installId = Long.valueOf(receive.getResponse().toString());
+                        UserSettingUtil.setInstallationId(context, installId);
+                    }
+                }
+            }, new DefaultErrorHook());
+        }
+
+        HttpUtil.sendAccessLog(context);
     }
 
     private void initDB() {

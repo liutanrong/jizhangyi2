@@ -13,6 +13,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.liu.Account.BmobNetwork.BmobNetworkUtils;
 import com.liu.Account.Constants.Constants;
 import com.liu.Account.R;
@@ -22,6 +24,7 @@ import com.liu.Account.commonUtils.ToastUtil;
 import com.liu.Account.initUtils.Init;
 import com.liu.Account.initUtils.StatusBarUtil;
 import com.liu.Account.utils.DatabaseUtil;
+import com.liu.Account.utils.HttpUtil;
 import com.umeng.analytics.MobclickAgent;
 import com.zhy.autolayout.AutoLayoutActivity;
 
@@ -86,6 +89,8 @@ public class LookBillActivity extends AutoLayoutActivity {
             map.put("type","查看账单");
         }
         MobclickAgent.onEventValue(context, "showAccount", map, 0);
+        JSONObject dataJson=new JSONObject();
+        HttpUtil.sendEventLog(context,HttpUtil.EVENT_SHOW, JSON.toJSONString(dataJson));
     }
 /**
  *  bundle.putString("money",money);
@@ -129,6 +134,9 @@ public class LookBillActivity extends AutoLayoutActivity {
             map.put("type","删除账单");
         }
         MobclickAgent.onEventValue(context, "delAccount", map, 0);
+
+        JSONObject dataJson=new JSONObject();
+        HttpUtil.sendEventLog(context,HttpUtil.EVENT_DELETE, JSON.toJSONString(dataJson));
 
 
         Dialog dialog =new AlertDialog.Builder(context)

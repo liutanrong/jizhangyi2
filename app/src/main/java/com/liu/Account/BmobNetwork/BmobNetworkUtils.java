@@ -8,6 +8,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.bmob.BTPFileResponse;
 import com.bmob.BmobProFile;
 import com.bmob.btp.callback.DownloadListener;
@@ -21,6 +23,7 @@ import com.liu.Account.commonUtils.PrefsUtil;
 import com.liu.Account.commonUtils.ToastUtil;
 import com.liu.Account.fragment.SyncFragment;
 import com.liu.Account.utils.DatabaseUtil;
+import com.liu.Account.utils.HttpUtil;
 import com.umeng.analytics.MobclickAgent;
 
 import java.io.File;
@@ -170,10 +173,15 @@ public class BmobNetworkUtils {
                 map.put("type","自动上传数据");
         }
 
-        if (isShow)
+        if (isShow) {
             MobclickAgent.onEventValue(context, "UpDatas", map, 0);
-        else
+            HttpUtil.sendEventLog(context, HttpUtil.EVENT_DATA_UP, null);
+        }
+        else {
             MobclickAgent.onEventValue(context, "AutoUpDatas", map, 0);
+
+            HttpUtil.sendEventLog(context,HttpUtil.EVENT_DATA_AUTO_UP, null);
+        }
 
         if (isShow) {
             pro.setTitle("正在上传");
@@ -236,6 +244,8 @@ public class BmobNetworkUtils {
             map.put("type", "下载数据");
         }
         MobclickAgent.onEventValue(context, "getDatas", map, 0);
+
+        HttpUtil.sendEventLog(context,HttpUtil.EVENT_DATA_DOWN, null);
 
         pro.setTitle("正在下载");
         pro.setMessage("请稍候...");

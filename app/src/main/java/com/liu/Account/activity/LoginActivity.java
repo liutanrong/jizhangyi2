@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.liu.Account.R;
 import com.liu.Account.commonUtils.AppUtil;
 import com.liu.Account.commonUtils.ToastUtil;
+import com.liu.Account.utils.HttpUtil;
 import com.umeng.analytics.MobclickAgent;
 import com.zhy.autolayout.AutoLayoutActivity;
 
@@ -93,6 +94,7 @@ public class LoginActivity extends AutoLayoutActivity{
             public void onSuccess() {
                 //登陆成功
                 pro.dismiss();
+
                 BmobUser user1 = BmobUser.getCurrentUser(context);
                 MobclickAgent.onProfileSignIn(user1.getObjectId());
                 finish();

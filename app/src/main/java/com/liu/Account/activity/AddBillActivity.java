@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -18,6 +17,8 @@ import android.widget.ListView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.liu.Account.Constants.Constants;
 import com.liu.Account.Constants.TagConstats;
 import com.liu.Account.R;
@@ -25,11 +26,12 @@ import com.liu.Account.adapter.AddBillTagAdapter;
 import com.liu.Account.commonUtils.DateUtil;
 import com.liu.Account.commonUtils.LogUtil;
 import com.liu.Account.commonUtils.ToastUtil;
+import com.liu.Account.initUtils.StatusBarUtil;
 import com.liu.Account.model.AddBillData;
 import com.liu.Account.model.AddBillTagData;
 import com.liu.Account.utils.DatabaseUtil;
+import com.liu.Account.utils.HttpUtil;
 import com.liu.Account.utils.NumberUtil;
-import com.liu.Account.initUtils.StatusBarUtil;
 import com.squareup.timessquare.CalendarPickerView;
 import com.umeng.analytics.MobclickAgent;
 import com.zhy.autolayout.AutoLayoutActivity;
@@ -291,6 +293,7 @@ public class AddBillActivity extends AutoLayoutActivity {
         cv.put(Constants.column[10], data.getDayOfMonth());
         db.insert(Constants.tableName, cv);
         ////  16-1-25 添加账单 统计数据
+
         String logg=
                 " 发生时间:"+data.getDate()+
                         " 账单类型:"+data.getType()+
@@ -322,6 +325,14 @@ public class AddBillActivity extends AutoLayoutActivity {
         }
         MobclickAgent.onEventValue(context, "addAccount", map, 0);
 
+
+        JSONObject dataJson=new JSONObject();
+        dataJson.put("creatTime",data.getDate());
+        dataJson.put("type",data.getType());
+        dataJson.put("tag",data.getTag());
+        dataJson.put("money",data.getMoney());
+        dataJson.put("remark",data.getRemark());
+        HttpUtil.sendEventLog(context,HttpUtil.EVENT_ADD, JSON.toJSONString(dataJson));
         finish();
     }
     @Override

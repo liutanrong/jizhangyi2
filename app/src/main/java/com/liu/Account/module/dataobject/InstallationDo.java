@@ -1,15 +1,14 @@
 package com.liu.Account.module.dataobject;
 
-import java.sql.Date;
-
 /**
- * Created by tanrong on 16/7/1.
+ * Created by tanrong on 16/7/4.
  */
-public class AccessLogDo {
+public class InstallationDo {
     private Long id;
     private Long userId;
-    private Long installationId;
-    private String deviceType="android";
+    private String email;
+    private String phoneNum;
+    private String deviceType;
     private String phoneType;
     private String imei;
     private String imei2;
@@ -19,9 +18,6 @@ public class AccessLogDo {
     private Integer androidAPI;
     private String androidVersion;
     private String channel;
-    private Long accessTime;
-    private Character isDeleted;
-    private String location;
 
     public Long getId() {
         return id;
@@ -39,20 +35,28 @@ public class AccessLogDo {
         this.userId = userId;
     }
 
-    public Long getInstallationId() {
-        return installationId;
+    public String getEmail() {
+        return email;
     }
 
-    public void setInstallationId(Long installationId) {
-        this.installationId = installationId;
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhoneNum() {
+        return phoneNum;
+    }
+
+    public void setPhoneNum(String phoneNum) {
+        this.phoneNum = phoneNum;
     }
 
     public String getDeviceType() {
         return deviceType;
     }
 
-    public void setDeviceType() {
-        this.deviceType = "android";
+    public void setDeviceType(String deviceType) {
+        this.deviceType = deviceType;
     }
 
     public String getPhoneType() {
@@ -125,29 +129,5 @@ public class AccessLogDo {
 
     public void setChannel(String channel) {
         this.channel = channel;
-    }
-
-    public Long getAccessTime() {
-        return accessTime;
-    }
-
-    public void setAccessTime(Long accessTime) {
-        this.accessTime = accessTime;
-    }
-
-    public Character getIsDeleted() {
-        return isDeleted;
-    }
-
-    public void setIsDeleted(Character isDeleted) {
-        this.isDeleted = isDeleted;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
     }
 }
