@@ -9,4 +9,7 @@ public class MethodConstant {
     public static final String UPDDATE_INSTALLATION="installation/update";
 
     public static final String ADD_EVENTLOG="eventLog/add";
+
+
+    public static final String ADD_USER="user/add";
 }

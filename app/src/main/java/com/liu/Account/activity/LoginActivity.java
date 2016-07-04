@@ -11,10 +11,18 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.liu.Account.BmobRespose.BmobUsers;
+import com.liu.Account.Constants.MethodConstant;
 import com.liu.Account.R;
 import com.liu.Account.commonUtils.AppUtil;
 import com.liu.Account.commonUtils.ToastUtil;
+import com.liu.Account.module.Hook.DefaultErrorHook;
+import com.liu.Account.module.dataobject.UserDo;
+import com.liu.Account.network.beans.JsonReceive;
+import com.liu.Account.network.beans.ResponseHook;
+import com.liu.Account.utils.EncryptionUtils;
 import com.liu.Account.utils.HttpUtil;
+import com.liu.Account.utils.UserSettingUtil;
 import com.umeng.analytics.MobclickAgent;
 import com.zhy.autolayout.AutoLayoutActivity;
 
@@ -64,7 +72,7 @@ public class LoginActivity extends AutoLayoutActivity{
         AppUtil.requestFocus(mLogin_login);
     }
 
-    private void BmobLogin(String userName, String password) {
+    private void BmobLogin(final String userName, final String password) {
         if (userName==null) {
             ToastUtil.showShort(context, getString(R.string.userNameNull));
             return;
@@ -86,7 +94,7 @@ public class LoginActivity extends AutoLayoutActivity{
         pro.setMessage("请稍等...");
         pro.show();
 
-        BmobUser user=new BmobUser();
+        final BmobUser user=new BmobUser();
         user.setUsername(userName);
         user.setPassword(password);
         user.login(context, new SaveListener() {
@@ -95,8 +103,26 @@ public class LoginActivity extends AutoLayoutActivity{
                 //登陆成功
                 pro.dismiss();
 
-                BmobUser user1 = BmobUser.getCurrentUser(context);
+                BmobUsers user1 = BmobUsers.getCurrentUser(context,BmobUsers.class);
                 MobclickAgent.onProfileSignIn(user1.getObjectId());
+                UserDo userDo=new UserDo();
+                userDo.setInstallationId(UserSettingUtil.getInstallationId(context));
+                userDo.setEmail(userName);
+                userDo.setEmailVerified(user1.getEmailVerified()==true?'Y':'N');
+                userDo.setPassword(EncryptionUtils.encrypt(password,userName));
+                userDo.setNickName(user1.getNickName());
+
+                HttpUtil.post(MethodConstant.ADD_USER, userDo, new ResponseHook() {
+                    @Override
+                    public void deal(Context context, JsonReceive receive) {
+                        if (receive.getResponse()!=null){
+                            if (receive.getResponse() != null) {
+                                Long userId = Long.valueOf(receive.getResponse().toString());
+                                UserSettingUtil.setUserId(context, userId);
+                            }
+                        }
+                    }
+                },new DefaultErrorHook());
                 finish();
             }
 

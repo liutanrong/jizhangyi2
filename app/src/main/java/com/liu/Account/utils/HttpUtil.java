@@ -2,11 +2,9 @@ package com.liu.Account.utils;
 
 import android.content.Context;
 import android.location.Location;
-import android.util.Log;
 
 import com.liu.Account.Constants.MethodConstant;
 import com.liu.Account.commonUtils.AppUtil;
-import com.liu.Account.commonUtils.ToastUtil;
 import com.liu.Account.initUtils.DeviceInformation;
 import com.liu.Account.module.Hook.DefaultErrorHook;
 import com.liu.Account.module.dataobject.AccessLogDo;
@@ -18,8 +16,6 @@ import com.liu.Account.network.beans.JsonReceive;
 import com.liu.Account.network.beans.ResponseHook;
 import com.liu.Account.network.beans.ResponseHookDeal;
 import com.liu.Account.network.utils.JsonParseUtil;
-import com.liu.Account.network.utils.LogUtil;
-import com.liu.Account.view.emojicon.emoji.Objects;
 
 import org.json.JSONObject;
 
@@ -89,7 +85,7 @@ public class HttpUtil {
             @Override
             public void deal(Context context, JsonReceive receive) {
                 if (null != receive.getResponse()) {
-                    ToastUtil.showShort(context,"发送成功"+receive.getResponse().toString());
+                  //  ToastUtil.showShort(context,"发送成功"+receive.getResponse().toString());
                 }
             }
         }, new DefaultErrorHook());
@@ -117,7 +113,7 @@ public class HttpUtil {
             @Override
             public void deal(Context context, JsonReceive receive) {
                 if (null != receive.getResponse()) {
-                    ToastUtil.showShort(context,"发送成功"+receive.getResponse().toString());
+                  //  ToastUtil.showShort(context,"发送成功"+receive.getResponse().toString());
                 }
             }
         }, new DefaultErrorHook());
