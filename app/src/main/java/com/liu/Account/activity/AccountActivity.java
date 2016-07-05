@@ -36,6 +36,7 @@ import com.liu.Account.commonUtils.PrefsUtil;
 import com.liu.Account.commonUtils.ToastUtil;
 import com.liu.Account.utils.BitmapUtil;
 import com.liu.Account.utils.DatabaseUtil;
+import com.liu.Account.utils.UserSettingUtil;
 import com.umeng.analytics.MobclickAgent;
 import com.zhy.autolayout.AutoLayoutActivity;
 
@@ -186,24 +187,25 @@ public class AccountActivity extends AutoLayoutActivity implements View.OnClickL
         switch (v.getId()){
             case R.id.title_right:{
                 new AlertDialog.Builder(context).setTitle("退出")
-                        .setMessage("退出后，将清除所有本地记录,确定退出?")
+                        .setMessage("确定退出?")
                         .setPositiveButton("确定退出", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                try {
-                                    DatabaseUtil db =new DatabaseUtil(context,Constants.DBNAME,1);
-
-                                    db.deleteAll(Constants.tableName);
-                                    db.close();
-                                    AccountActivity.this.finish();
-                                }catch (Exception e){
-                                    e.printStackTrace();
-                                }
+//                                try {
+//                                    DatabaseUtil db =new DatabaseUtil(context,Constants.DBNAME,1);
+//
+//                                    db.deleteAll(Constants.tableName);
+//                                    db.close();
+//                                    AccountActivity.this.finish();
+//                                }catch (Exception e){
+//                                    e.printStackTrace();
+//                                }
                                 //将图形密码置为空
                                 PrefsUtil d=new PrefsUtil(context, Constants.PatternLock, Context.MODE_PRIVATE);
                                 d.putBoolean("isPatternOn", false);
 
                                 MobclickAgent.onProfileSignOff();
+                                UserSettingUtil.setUserId(context,null);
 
                                 BmobUser.logOut(context);   //清除缓存用户对象
                             }
