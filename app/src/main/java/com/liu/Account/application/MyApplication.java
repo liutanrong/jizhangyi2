@@ -39,6 +39,8 @@ public class MyApplication extends Application {
                 .build();
 
         OkHttpUtils.initClient(okHttpClient);
+        CrashHandler crashHandler = CrashHandler.getInstance();
+        crashHandler.init(this);
     }
 
     public Context getContext() {

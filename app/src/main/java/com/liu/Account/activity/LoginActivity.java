@@ -74,6 +74,15 @@ public class LoginActivity extends AutoLayoutActivity{
         AppUtil.requestFocus(mLogin_login);
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        BmobUser bmobUser=BmobUser.getCurrentUser(context);
+        if (bmobUser!=null&&bmobUser.getEmail()!=null){
+            mLogin_user_name.setText(bmobUser.getEmail());
+        }
+    }
+
     private void BmobLogin(final String userName, final String password) {
         if (userName==null) {
             ToastUtil.showShort(context, getString(R.string.userNameNull));

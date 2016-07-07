@@ -33,9 +33,14 @@ public class DefaultErrorHook implements ErrorHook {
         LogUtil.d("errorRequest:"+request);
         MyApplication application=new MyApplication();
         context=application.getContext();
+            String method="";
+        try {
 
             JSONObject re=JSON.parseObject(request);
-            String method=re.getString("method");
+            method=re.getString("method");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
             LogUtil.i("method:"+method);
             if (method.equalsIgnoreCase( MethodConstant.ADD_ACCESSLOG)||method.equalsIgnoreCase(MethodConstant.ADD_EVENTLOG)
                     ||method.equalsIgnoreCase(MethodConstant.UPDDATE_INSTALLATION)
@@ -80,7 +85,7 @@ public class DefaultErrorHook implements ErrorHook {
             try {
 
                 Mails mails=new Mails(authenticator,properties);
-                mails.setDebug(true);
+                mails.setDebug(false);
                 result=mails.sendHtmlEmail(userName,subject,content);
             }catch (Exception e){
                 e.printStackTrace();

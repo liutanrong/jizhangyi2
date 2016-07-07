@@ -44,7 +44,7 @@ public class FileNetworkManager {
                     public void onError(Call call, Exception e, int i) {
                         MyApplication myApplication =new MyApplication();
 
-                        Context context= myApplication.getApplicationContext();
+                        Context context= myApplication.getContext();
                         if (errorHook != null) {
                             errorHook.deal(context,new VolleyError(e),"file:"+file.getName());
                         }
