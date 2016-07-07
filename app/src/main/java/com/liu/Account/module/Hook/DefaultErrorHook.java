@@ -23,7 +23,7 @@ public class DefaultErrorHook implements ErrorHook {
     @Override
     public void deal(Context context, VolleyError error,Object request) {
         LogUtil.d(error.toString());
-        SendEmailsTask task=new SendEmailsTask("记账易网络错误自动报告", JSON.toJSONString(request)+"\n"+error.toString());
+        SendEmailsTask task=new SendEmailsTask("记账易网络错误自动报告", JSON.toJSONString(request)+"\n\n\n"+error.toString());
         task.execute();
     }
 
