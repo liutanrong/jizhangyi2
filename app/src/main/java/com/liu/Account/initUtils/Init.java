@@ -1,17 +1,23 @@
 package com.liu.Account.initUtils;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Environment;
 import android.telephony.TelephonyManager;
 
 import com.liu.Account.BmobNetwork.BmobNetworkUtils;
 import com.liu.Account.Constants.Constants;
+import com.liu.Account.activity.AccountActivity;
+import com.liu.Account.activity.LoginActivity;
 import com.liu.Account.commonUtils.AppUtil;
 import com.liu.Account.commonUtils.DateUtil;
 import com.liu.Account.commonUtils.LogUtil;
 import com.liu.Account.commonUtils.PrefsUtil;
 import com.liu.Account.commonUtils.ToastUtil;
+import com.liu.Account.utils.DatabaseUtil;
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.update.UmengUpdateAgent;
 
@@ -109,6 +115,21 @@ public class Init {
             }
         }catch (Exception e){
            e.printStackTrace();
+        }
+    }
+    public static void toLoginAgain(final Context context){
+        PrefsUtil d = new PrefsUtil(context, Constants.AutoUpdatePrefsName, Context.MODE_PRIVATE);
+        if (!d.getBoolean("isLoginAgain",false)){
+            new AlertDialog.Builder(context).setTitle("重新登录")
+                    .setMessage("为确保账户安全,您需要重新登录")
+                    .setPositiveButton("去登陆", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Intent intent=new Intent(context, LoginActivity.class);
+                            context.startActivity(intent);
+                        }
+                    }).setNegativeButton("下次再说",null)
+                    .show();
         }
     }
 }

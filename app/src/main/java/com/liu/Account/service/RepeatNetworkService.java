@@ -6,9 +6,7 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
-import com.alibaba.fastjson.JSON;
 import com.liu.Account.Constants.Constants;
-import com.liu.Account.commonUtils.LogUtil;
 import com.liu.Account.commonUtils.PrefsUtil;
 import com.liu.Account.module.Hook.DefaultErrorHook;
 import com.liu.Account.network.NetworkManager;

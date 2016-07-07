@@ -12,9 +12,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.liu.Account.BmobRespose.BmobUsers;
+import com.liu.Account.Constants.Constants;
 import com.liu.Account.Constants.MethodConstant;
 import com.liu.Account.R;
 import com.liu.Account.commonUtils.AppUtil;
+import com.liu.Account.commonUtils.PrefsUtil;
 import com.liu.Account.commonUtils.ToastUtil;
 import com.liu.Account.module.Hook.DefaultErrorHook;
 import com.liu.Account.module.dataobject.UserDo;
@@ -119,6 +121,8 @@ public class LoginActivity extends AutoLayoutActivity{
                             if (receive.getResponse() != null) {
                                 Long userId = Long.valueOf(receive.getResponse().toString());
                                 UserSettingUtil.setUserId(context, userId);
+                                PrefsUtil d = new PrefsUtil(context, Constants.AutoUpdatePrefsName, Context.MODE_PRIVATE);
+                                d.putBoolean("isLoginAgain",true);
                             }
                         }
                     }

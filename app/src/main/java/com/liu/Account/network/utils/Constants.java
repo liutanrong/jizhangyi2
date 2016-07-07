@@ -16,8 +16,8 @@ public class Constants {
 	 * 网络请求的url
 	 */
 	// TODO: 2016/3/21 这里根据比目的具体数据修改
-//	public static String URL = "http://114.215.92.152:8026/api/jizhangyi/";
-	public static String URL = "http://192.168.100.2:8026/api/jizhangyi/";
+	public static String URL = "http://114.215.92.152:8026/api/jizhangyi/";
+//	public static String URL = "http://192.168.100.2:8026/api/jizhangyi/";
 	public static String APPKEY = "888";
 	public static final int RTIMES = 1;
 	public static String SECRET = "567745674567544";

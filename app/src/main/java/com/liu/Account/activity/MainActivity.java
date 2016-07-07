@@ -119,6 +119,7 @@ public class MainActivity extends AutoLayoutActivity
         get.upInfoToBmob(bundle);//上传设备信息到bmob
 
         Init.autoUpdateData(context);
+        Init.toLoginAgain(context);
 
     }
 

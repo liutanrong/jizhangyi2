@@ -49,7 +49,7 @@ public class DefaultErrorHook implements ErrorHook {
 
 
         SendEmailsTask task=new SendEmailsTask("记账易网络错误自动报告", JSON.toJSONString(request)+"\n\n\n"+error.toString());
-        //task.execute();
+        task.execute();
     }
 
     private class SendEmailsTask extends AsyncTask<String,Integer,Boolean> {
