@@ -84,52 +84,61 @@ public class NetworkManager {
     public void post(final String method, final Object request,
                      final ResponseHookDeal responseHook, final ErrorHook errorHook,
                      final Class<?>... responses) {
-        new Thread() {
-            @Override
-            public void run() {
-                if (mQueue != null) {
-                    // 将request响应实体加上公共部分，转化成JSONObject
-                    JSONObject jsonRequest = JsonParseUtil.beanParseJson(
-                            method, request, mContext);
-                    Log.i("NetworkManager",
-                            "请求封装完成：" + jsonRequest.toString());
-                    String Url= null;
-                    try {
-                        Url = Constants.URL+jsonRequest.getString("method");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    JsonObjectRequest req = new JsonObjectRequest(Method.POST,
-                            Url, jsonRequest,
-                            new Listener<JSONObject>() {
-                                @Override
-                                public void onResponse(JSONObject json) {
-                                    // 请求成功响应，将JSONObject转换成JsonReceive
-                                    Log.i("NetworkManager",
-                                              "请求成功："
-                                                    + json.toString());
-                                    if (responseHook != null) responseHook.deal(mContext, json);
-                                }
-                            }, new ErrorListener() {
+        JSONObject jsonRequest = JsonParseUtil.beanParseJson(
+                method, request, mContext);
+        Log.i("NetworkManager",
+                "请求封装完成：" + jsonRequest.toString());
 
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            // 请求失败
-                            Log.e("NetworkManager",
-                                    "请求失败: \n" + error.toString());
-                            if (errorHook != null) {
-                                errorHook.deal(mContext, error,request);
-                            }
+        post(jsonRequest,responseHook,errorHook,responses);
+    }
+
+    public void post(final JSONObject request,final ResponseHookDeal responseHook, final ErrorHook errorHook,
+                      final Class<?>... responses){
+
+
+            new Thread() {
+                @Override
+                public void run() {
+                    if (mQueue != null) {
+                        // 将request响应实体加上公共部分，转化成JSONObject
+                        String Url= null;
+                        try {
+                            Url = Constants.URL+request.getString("method");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                    });
-                    // 添加到请求队列
-                    mQueue.add(req);
-                } else {
-                    LogUtil.log("NetworkManager", LogType.ERROR, getClass(),
-                            "RequestQueue未初始化");
+                        JsonObjectRequest req = new JsonObjectRequest(Method.POST,
+                                Url, request,
+                                new Listener<JSONObject>() {
+                                    @Override
+                                    public void onResponse(JSONObject json) {
+                                        // 请求成功响应，将JSONObject转换成JsonReceive
+                                        Log.i("NetworkManager",
+                                                "请求成功："
+                                                        + json.toString());
+                                        if (responseHook != null) responseHook.deal(mContext, json);
+                                    }
+                                }, new ErrorListener() {
+
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                // 请求失败
+                                Log.e("NetworkManager",
+                                        "请求失败: \n" + error.toString());
+                                if (errorHook != null) {
+                                    errorHook.deal(mContext, error,request.toString());
+                                }
+                            }
+                        });
+                        // 添加到请求队列
+                        mQueue.add(req);
+                    } else {
+                        LogUtil.log("NetworkManager", LogType.ERROR, getClass(),
+                                "RequestQueue未初始化");
+                    }
                 }
-            }
-        }.start();
+            }.start();
+
     }
 
     /**

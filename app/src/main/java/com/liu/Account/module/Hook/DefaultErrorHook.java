@@ -4,9 +4,14 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.android.volley.VolleyError;
+import com.liu.Account.Constants.Constants;
+import com.liu.Account.Constants.MethodConstant;
 import com.liu.Account.activity.MainActivity;
+import com.liu.Account.application.MyApplication;
 import com.liu.Account.commonUtils.LogUtil;
+import com.liu.Account.commonUtils.PrefsUtil;
 import com.liu.Account.mail.Mails;
 import com.liu.Account.mail.MailsAuthenticator;
 import com.liu.Account.mail.MailsProperties;
@@ -21,10 +26,30 @@ import java.util.Map;
 public class DefaultErrorHook implements ErrorHook {
 
     @Override
-    public void deal(Context context, VolleyError error,Object request) {
-        LogUtil.d(error.toString());
+    public void deal(Context context, VolleyError error,String request) {
+
+        LogUtil.d("error:"+error.toString());
+
+        LogUtil.d("errorRequest:"+request);
+        MyApplication application=new MyApplication();
+        context=application.getContext();
+
+            JSONObject re=JSON.parseObject(request);
+            String method=re.getString("method");
+            LogUtil.i("method:"+method);
+            if (method.equalsIgnoreCase( MethodConstant.ADD_ACCESSLOG)||method.equalsIgnoreCase(MethodConstant.ADD_EVENTLOG)
+                    ||method.equalsIgnoreCase(MethodConstant.UPDDATE_INSTALLATION)
+                    ){
+                PrefsUtil prefsUtil=new PrefsUtil(context,Constants.ERROR_NETWORK_SP,Context.MODE_PRIVATE);
+                int all=prefsUtil.getAll().size();
+                prefsUtil.putString(all+"",JSON.toJSONString(request));
+            }
+
+
+
+
         SendEmailsTask task=new SendEmailsTask("记账易网络错误自动报告", JSON.toJSONString(request)+"\n\n\n"+error.toString());
-        task.execute();
+        //task.execute();
     }
 
     private class SendEmailsTask extends AsyncTask<String,Integer,Boolean> {

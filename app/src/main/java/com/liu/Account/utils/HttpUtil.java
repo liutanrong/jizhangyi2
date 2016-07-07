@@ -93,6 +93,7 @@ public class HttpUtil {
             public void deal(Context context, JsonReceive receive) {
                 if (null != receive.getResponse()) {
                   //  ToastUtil.showShort(context,"发送成功"+receive.getResponse().toString());
+
                 }
             }
         }, new DefaultErrorHook());

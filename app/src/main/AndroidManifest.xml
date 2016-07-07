@@ -117,6 +117,13 @@
             android:name="com.umeng.update.UpdateDialogActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" >
         </activity>
+        <receiver android:name="com.liu.Account.receiver.NetworkBroadcastReceiver">
+        <intent-filter>
+        <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
+        </intent-filter>
+        </receiver>
+        <service
+            android:name="com.liu.Account.service.RepeatNetworkService"/>
     </application>
 
 </manifest>

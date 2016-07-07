@@ -1,6 +1,5 @@
 package com.liu.Account.activity;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,24 +14,18 @@ import com.liu.Account.Constants.MethodConstant;
 import com.liu.Account.Constants.TagConstats;
 import com.liu.Account.R;
 import com.liu.Account.commonUtils.AppUtil;
-import com.liu.Account.commonUtils.DateUtil;
-import com.liu.Account.commonUtils.LogUtil;
 import com.liu.Account.commonUtils.PrefsUtil;
-import com.liu.Account.commonUtils.ToastUtil;
 import com.liu.Account.initUtils.Init;
 import com.liu.Account.module.Hook.DefaultErrorHook;
-import com.liu.Account.module.dataobject.AccessLogDo;
 import com.liu.Account.module.dataobject.InstallationDo;
 import com.liu.Account.network.beans.JsonReceive;
 import com.liu.Account.network.beans.ResponseHook;
+import com.liu.Account.service.RepeatNetworkService;
 import com.liu.Account.utils.DatabaseUtil;
 import com.liu.Account.utils.HttpUtil;
 import com.liu.Account.utils.UserSettingUtil;
 import com.umeng.analytics.MobclickAgent;
-import com.zhy.autolayout.AutoLayoutActivity;
 
-import java.sql.Date;
-import java.util.Calendar;
 import java.util.List;
 
 import me.zhanghai.android.patternlock.ConfirmPatternActivity;
@@ -102,6 +95,13 @@ public class LaunchActivity extends ConfirmPatternActivity {
         }
 
         HttpUtil.sendAccessLog(context);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Intent intent=new Intent(context, RepeatNetworkService.class);
+        context.startService(intent);
     }
 
     private void initDB() {
