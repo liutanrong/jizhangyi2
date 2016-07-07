@@ -118,7 +118,7 @@ public class NetworkManager {
                             Log.e("NetworkManager",
                                     "请求失败: \n" + error.toString());
                             if (errorHook != null) {
-                                errorHook.deal(mContext, error);
+                                errorHook.deal(mContext, error,request);
                             }
                         }
                     });

@@ -191,23 +191,22 @@ public class AccountActivity extends AutoLayoutActivity implements View.OnClickL
                         .setPositiveButton("确定退出", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-//                                try {
-//                                    DatabaseUtil db =new DatabaseUtil(context,Constants.DBNAME,1);
-//
-//                                    db.deleteAll(Constants.tableName);
-//                                    db.close();
-//                                    AccountActivity.this.finish();
-//                                }catch (Exception e){
-//                                    e.printStackTrace();
-//                                }
+
                                 //将图形密码置为空
                                 PrefsUtil d=new PrefsUtil(context, Constants.PatternLock, Context.MODE_PRIVATE);
                                 d.putBoolean("isPatternOn", false);
 
                                 MobclickAgent.onProfileSignOff();
-                                UserSettingUtil.setUserId(context,null);
+//                                UserSettingUtil.setUserId(context,context);
 
                                 BmobUser.logOut(context);   //清除缓存用户对象
+                                try {
+                                    DatabaseUtil db =new DatabaseUtil(context,Constants.DBNAME,1);
+                                    db.close();
+                                    AccountActivity.this.finish();
+                                }catch (Exception e){
+                                    e.printStackTrace();
+                                }
                             }
                         }).setNegativeButton("取消",null)
                         .show();

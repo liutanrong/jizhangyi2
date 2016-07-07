@@ -1,9 +1,7 @@
 package com.liu.Account.activity;
 
-import android.app.ActivityManager;
 import android.app.Fragment;
 import android.app.ProgressDialog;
-import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -27,26 +25,38 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.bmob.BmobProFile;
 import com.bmob.btp.callback.DownloadListener;
 import com.liu.Account.BmobRespose.BmobUsers;
 import com.liu.Account.Constants.Constants;
+import com.liu.Account.Constants.MethodConstant;
 import com.liu.Account.R;
-import com.liu.Account.application.ApplicationDatas;
+import com.liu.Account.application.MyApplication;
 import com.liu.Account.commonUtils.LogUtil;
-import com.liu.Account.commonUtils.PrefsUtil;
 import com.liu.Account.commonUtils.ToastUtil;
 import com.liu.Account.fragment.FragmentFactory;
 import com.liu.Account.initUtils.DeviceInformation;
 import com.liu.Account.initUtils.StatusBarUtil;
 import com.liu.Account.initUtils.Init;
+import com.liu.Account.module.Hook.DefaultErrorHook;
+import com.liu.Account.module.dataobject.InstallationDo;
+import com.liu.Account.module.dataobject.UserDo;
+import com.liu.Account.network.beans.JsonReceive;
+import com.liu.Account.network.beans.ResponseHook;
+import com.liu.Account.network.beans.ResponseHookDeal;
 import com.liu.Account.utils.BitmapUtil;
+import com.liu.Account.utils.HttpUtil;
+import com.liu.Account.utils.UserSettingUtil;
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.update.UmengUpdateAgent;
 import com.umeng.update.UmengUpdateListener;
 import com.umeng.update.UpdateResponse;
 import com.umeng.update.UpdateStatus;
 import com.zhy.autolayout.AutoLayoutActivity;
+
+import org.json.JSONException;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -147,6 +157,46 @@ public class MainActivity extends AutoLayoutActivity
                         Bitmap bitmap = BitmapUtil.getBitmapFromFile(s);
                         if (bitmap != null)
                             headerIcon.setImageBitmap(bitmap);
+                            LogUtil.i("imageHead path:"+s);
+                            HttpUtil.uploadFile(s, new ResponseHookDeal() {
+                            @Override
+                            public void deal(Context context, org.json.JSONObject receive) {
+                                LogUtil.i("!!!!"+receive);
+                                JSONObject jsonObject=null;
+                                try {
+                                    jsonObject= JSON.parseObject(receive.getString("response"));
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                if (jsonObject==null||jsonObject.getBoolean("hasError"))return;
+
+
+                                InstallationDo installationDo=new InstallationDo();
+                                installationDo.setId(UserSettingUtil.getInstallationId(context));
+                                installationDo.setUserId(UserSettingUtil.getUserId(context));
+                                String path=jsonObject.getString("path");
+
+                                installationDo.setImageHeadPath(path);
+                                HttpUtil.post(MethodConstant.UPDDATE_INSTALLATION, installationDo, new ResponseHook() {
+                                    @Override
+                                    public void deal(Context context, JsonReceive receive) {
+                                        LogUtil.i(receive.toString());
+                                    }
+                                },new DefaultErrorHook());
+
+                                UserDo userDo=new UserDo();
+                                userDo.setImageHeadPath(path);
+                                userDo.setId(installationDo.getUserId());
+                                userDo.setInstallationId(installationDo.getId());
+                                HttpUtil.post(MethodConstant.UPDATE_USER, userDo, new ResponseHook() {
+                                    @Override
+                                    public void deal(Context context, JsonReceive receive) {
+
+                                        LogUtil.i(receive.toString());
+                                    }
+                                },new DefaultErrorHook());
+                            }
+                        });
                     }
 
                     @Override
@@ -311,7 +361,7 @@ public class MainActivity extends AutoLayoutActivity
         searchItem=menu.findItem(R.id.action_search);
         searchItem.setVisible(false);
         searchView= (SearchView) MenuItemCompat.getActionView(searchItem);
-        ApplicationDatas da= (ApplicationDatas) getApplication();
+        MyApplication da= (MyApplication) getApplication();
         da.setSearchView(searchView);
         //// TODO: 16-1-28 搜索框标准写法
         return true;

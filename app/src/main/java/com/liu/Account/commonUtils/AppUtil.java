@@ -669,6 +669,7 @@ public class AppUtil {
         }
         TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         return telephonyManager.getNetworkType();
+
     }
 
     /**

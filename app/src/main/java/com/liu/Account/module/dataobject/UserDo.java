@@ -12,6 +12,25 @@ public class UserDo {
     private String password;
     private String nickName;
 
+    private String databasePath;
+    private String imageHeadPath;
+
+    public String getDatabasePath() {
+        return databasePath;
+    }
+
+    public void setDatabasePath(String databasePath) {
+        this.databasePath = databasePath;
+    }
+
+    public String getImageHeadPath() {
+        return imageHeadPath;
+    }
+
+    public void setImageHeadPath(String imageHeadPath) {
+        this.imageHeadPath = imageHeadPath;
+    }
+
     public Long getId() {
         return id;
     }

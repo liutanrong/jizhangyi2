@@ -12,4 +12,8 @@ public class MethodConstant {
 
 
     public static final String ADD_USER="user/add";
+    public static final String UPDATE_USER="user/update";
+
+    public static final String UPLOAD_FILE="file/upload";
+    public static final String UPLOAD_MORE_FILE="more_upload";
 }

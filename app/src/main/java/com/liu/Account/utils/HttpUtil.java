@@ -2,6 +2,7 @@ package com.liu.Account.utils;
 
 import android.content.Context;
 import android.location.Location;
+import android.util.Log;
 
 import com.liu.Account.Constants.MethodConstant;
 import com.liu.Account.commonUtils.AppUtil;
@@ -10,15 +11,18 @@ import com.liu.Account.module.Hook.DefaultErrorHook;
 import com.liu.Account.module.dataobject.AccessLogDo;
 import com.liu.Account.module.dataobject.EventLogDo;
 import com.liu.Account.module.dataobject.InstallationDo;
+import com.liu.Account.network.FileNetworkManager;
 import com.liu.Account.network.NetworkManager;
 import com.liu.Account.network.beans.ErrorHook;
 import com.liu.Account.network.beans.JsonReceive;
 import com.liu.Account.network.beans.ResponseHook;
 import com.liu.Account.network.beans.ResponseHookDeal;
+import com.liu.Account.network.utils.Constants;
 import com.liu.Account.network.utils.JsonParseUtil;
 
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.Calendar;
 
 import cn.bmob.v3.BmobUser;
@@ -61,7 +65,7 @@ public class HttpUtil {
         AccessLogDo logDo=new AccessLogDo();
         Calendar calendar=Calendar.getInstance();
         logDo.setAccessTime(calendar.getTimeInMillis());
-        logDo.setChannel(DeviceInformation.getMetaData(context,"CHANNEL"));
+        logDo.setChannel(DeviceInformation.getMetaData(context,"UMENG_CHANNEL"));
         logDo.setInstallationId(UserSettingUtil.getInstallationId(context));
         logDo.setUserId(UserSettingUtil.getUserId(context));
 
@@ -73,6 +77,9 @@ public class HttpUtil {
         logDo.setImei(AppUtil.getDeviceIMEI(context));
         logDo.setImsi(AppUtil.getDeviceIMSI(context));
         logDo.setDeviceType();
+        logDo.setNetworkOperatorName(AppUtil.getNetworkOperatorName(context));
+        logDo.setNetworkStatus(AppUtil.getCurrentNetWorkStatus(context));
+        logDo.setDeviceMacAddress(AppUtil.getDeviceMacAddress(context));
 
         String location="0,0";
         Location location1=LocationUtils.getLocation(context);
@@ -156,5 +163,20 @@ public class HttpUtil {
         },new DefaultErrorHook());
     }
 
-
+    public static void uploadFile(String filePath,ResponseHookDeal responseHookDeal){
+        File file=new File(filePath);
+        if (file.exists()){
+            uploadFile(file,responseHookDeal);
+        }else {
+            Log.e("uploadFile","filePath do not have file");
+        }
+    }
+    /**
+     * 上传文件到服务器
+     * @param file
+     */
+    public static void uploadFile(File file,ResponseHookDeal responseHook){
+        String url= Constants.URL+MethodConstant.UPLOAD_FILE;
+        FileNetworkManager.uploadFile(file, url,responseHook,new DefaultErrorHook());
+    }
 }

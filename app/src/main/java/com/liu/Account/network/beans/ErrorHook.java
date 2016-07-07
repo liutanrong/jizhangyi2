@@ -14,6 +14,6 @@ public interface ErrorHook {
 	 * @param context 应用程序上下文
 	 * @param error 失败的原因
 	 */
-	public void deal(Context context, VolleyError error);
+	public void deal(Context context, VolleyError error,Object request);
 	
 }

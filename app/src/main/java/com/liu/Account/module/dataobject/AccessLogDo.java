@@ -23,6 +23,38 @@ public class AccessLogDo {
     private Character isDeleted;
     private String location;
 
+    private Integer networkStatus;
+    private String deviceMacAddress;
+    private String networkOperatorName;
+
+    public void setDeviceType(String deviceType) {
+        this.deviceType = deviceType;
+    }
+
+    public Integer getNetworkStatus() {
+        return networkStatus;
+    }
+
+    public void setNetworkStatus(Integer networkStatus) {
+        this.networkStatus = networkStatus;
+    }
+
+    public String getDeviceMacAddress() {
+        return deviceMacAddress;
+    }
+
+    public void setDeviceMacAddress(String deviceMacAddress) {
+        this.deviceMacAddress = deviceMacAddress;
+    }
+
+    public String getNetworkOperatorName() {
+        return networkOperatorName;
+    }
+
+    public void setNetworkOperatorName(String networkOperatorName) {
+        this.networkOperatorName = networkOperatorName;
+    }
+
     public Long getId() {
         return id;
     }

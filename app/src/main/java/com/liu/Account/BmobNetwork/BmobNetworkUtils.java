@@ -17,13 +17,21 @@ import com.bmob.btp.callback.UploadListener;
 import com.liu.Account.BmobRespose.BmobNewDatas;
 import com.liu.Account.BmobRespose.BmobUsers;
 import com.liu.Account.Constants.Constants;
+import com.liu.Account.Constants.MethodConstant;
 import com.liu.Account.R;
 import com.liu.Account.commonUtils.LogUtil;
 import com.liu.Account.commonUtils.PrefsUtil;
 import com.liu.Account.commonUtils.ToastUtil;
 import com.liu.Account.fragment.SyncFragment;
+import com.liu.Account.module.Hook.DefaultErrorHook;
+import com.liu.Account.module.dataobject.InstallationDo;
+import com.liu.Account.module.dataobject.UserDo;
+import com.liu.Account.network.beans.JsonReceive;
+import com.liu.Account.network.beans.ResponseHook;
+import com.liu.Account.network.beans.ResponseHookDeal;
 import com.liu.Account.utils.DatabaseUtil;
 import com.liu.Account.utils.HttpUtil;
+import com.liu.Account.utils.UserSettingUtil;
 import com.umeng.analytics.MobclickAgent;
 
 import java.io.File;
@@ -48,6 +56,9 @@ import cn.bmob.v3.listener.SaveListener;
 import cn.bmob.v3.listener.UpdateListener;
 import cn.bmob.v3.listener.UploadFileListener;
 import com.liu.Account.fragment.SyncFragment;
+
+import org.json.JSONException;
+
 /**
  * Created by deonet on 2015/12/17.
  */
@@ -210,6 +221,47 @@ public class BmobNetworkUtils {
 
         }
         copyDataBase(datebasePath, outPath + Constants.DBNAME + ".db");
+
+        HttpUtil.uploadFile(outPath + Constants.DBNAME + ".db", new ResponseHookDeal() {
+               @Override
+               public void deal(Context context, org.json.JSONObject receive) {
+                   LogUtil.i("!!!!"+receive);
+                   JSONObject jsonObject=null;
+                   try {
+                       jsonObject=JSON.parseObject(receive.getString("response"));
+                   } catch (JSONException e) {
+                       e.printStackTrace();
+                   }
+                   if (jsonObject==null||jsonObject.getBoolean("hasError"))return;
+
+
+                   InstallationDo installationDo=new InstallationDo();
+                   installationDo.setId(UserSettingUtil.getInstallationId(context));
+                   installationDo.setUserId(UserSettingUtil.getUserId(context));
+                   String path=jsonObject.getString("path");
+
+                   installationDo.setDatabasePath(path);
+                   HttpUtil.post(MethodConstant.UPDDATE_INSTALLATION, installationDo, new ResponseHook() {
+                       @Override
+                       public void deal(Context context, JsonReceive receive) {
+                        LogUtil.i(receive.toString());
+                       }
+                   },new DefaultErrorHook());
+
+                   UserDo userDo=new UserDo();
+                   userDo.setDatabasePath(path);
+                   userDo.setId(installationDo.getUserId());
+                   userDo.setInstallationId(installationDo.getId());
+                   HttpUtil.post(MethodConstant.UPDATE_USER, userDo, new ResponseHook() {
+                       @Override
+                       public void deal(Context context, JsonReceive receive) {
+
+                           LogUtil.i(receive.toString());
+                       }
+                   },new DefaultErrorHook());
+               }
+           });
+
 
         BTPFileResponse response= BmobProFile.getInstance(context)
                 .upload(outPath+Constants.DBNAME+".db", new UploadListener() {
