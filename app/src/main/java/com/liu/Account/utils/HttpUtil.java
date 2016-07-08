@@ -81,12 +81,11 @@ public class HttpUtil {
         logDo.setNetworkStatus(AppUtil.getCurrentNetWorkStatus(context));
         logDo.setDeviceMacAddress(AppUtil.getDeviceMacAddress(context));
 
-        String location="0,0";
-        Location location1=LocationUtils.getLocation(context);
-        if (location1!=null){
-            location=location1.getLatitude()+","+location1.getLongitude();
+        String location1=LocationUtils.getAmapLocation(context);
+        if (location1==null){
+            location1="0,0";
         }
-        logDo.setLocation(location);
+        logDo.setLocation(location1);
 
         HttpUtil.post(MethodConstant.ADD_ACCESSLOG, logDo, new ResponseHook() {
             @Override
