@@ -119,6 +119,10 @@ public class Init {
     }
     public static void toLoginAgain(final Context context){
         PrefsUtil d = new PrefsUtil(context, Constants.AutoUpdatePrefsName, Context.MODE_PRIVATE);
+        BmobUser bmobUser=BmobUser.getCurrentUser(context);
+        if (bmobUser==null){
+            return;
+        }
         if (!d.getBoolean("isLoginAgain",false)){
             new AlertDialog.Builder(context).setTitle("重新登录")
                     .setMessage("为确保账户安全,您需要重新登录")

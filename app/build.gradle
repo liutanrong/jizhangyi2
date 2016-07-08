@@ -21,24 +21,24 @@ android {
         xiaomi {
             manifestPlaceholders = [UMENG_CHANNEL_VALUE: "xiaomi"]
         }
-//
-//       baidu {
-//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "baidu"]
-//        }
-//
-//        c360 {
-//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "360"]
-//        }
-//
-//        huawei {
-//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "huawei"]
-//        }
-//        meizu {
-//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "meizu"]
-//        }
-//        bmob {
-//            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "bmob"]
-//        }
+
+       baidu {
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "baidu"]
+        }
+
+        c360 {
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "360"]
+        }
+
+        huawei {
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "huawei"]
+        }
+        meizu {
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "meizu"]
+        }
+        bmob {
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "bmob"]
+        }
     }
     packagingOptions {
         exclude 'META-INF/ASL2.0'
