@@ -191,10 +191,18 @@ public class AllBillFragment extends Fragment implements ExpandableListView.OnCh
             System.out.println(e.toString());
         }
         allCount = OutCount - InCount;
-        allCount=Math.abs(allCount);
 
         OutCount=NumberUtil.roundHalfUp(OutCount);
         allCount=NumberUtil.roundHalfUp(allCount);
+
+        if (allCount > 0){
+            count[1] = getString(R.string.MoneyOut);
+        }else {
+            count[1]=getString(R.string.MoneyIn);
+        }
+
+        allCount=Math.abs(allCount);
+
 
         if (allCount>10000){
             allCount= NumberUtil.roundHalfUp(allCount/10000);
@@ -220,11 +228,6 @@ public class AllBillFragment extends Fragment implements ExpandableListView.OnCh
             count[3]= String.valueOf(InCount);
         }
 
-        if (allCount > 0){
-            count[1] = getString(R.string.MoneyOut);
-        }else {
-            count[1]=getString(R.string.MoneyIn);
-        }
 
         return count;
     }
