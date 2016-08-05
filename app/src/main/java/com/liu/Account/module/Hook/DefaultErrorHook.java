@@ -50,11 +50,10 @@ public class DefaultErrorHook implements ErrorHook {
                 prefsUtil.putString(all+"",JSON.toJSONString(request));
             }
 
-
-
-
-        SendEmailsTask task=new SendEmailsTask("记账易网络错误自动报告", JSON.toJSONString(request)+"\n\n\n"+error.toString());
-        task.execute();
+        if (!method.equalsIgnoreCase(MethodConstant.UPLOAD_FILE)){
+            SendEmailsTask task=new SendEmailsTask("记账易网络错误自动报告", JSON.toJSONString(request)+"\n\n\n"+error.toString());
+            task.execute();
+        }
     }
 
     private class SendEmailsTask extends AsyncTask<String,Integer,Boolean> {
