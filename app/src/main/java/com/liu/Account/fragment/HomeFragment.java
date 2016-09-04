@@ -1,17 +1,12 @@
 package com.liu.Account.fragment;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,20 +14,26 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.alibaba.fastjson.JSON;
 import com.liu.Account.Constants.Constants;
 import com.liu.Account.Constants.TagConstats;
 import com.liu.Account.R;
 import com.liu.Account.activity.AddBillActivity;
 import com.liu.Account.activity.LookBillActivity;
 import com.liu.Account.adapter.HomeListViewAdapter;
+import com.liu.Account.commonUtils.DateUtil;
 import com.liu.Account.commonUtils.LogUtil;
+import com.liu.Account.database.Bill;
 import com.liu.Account.model.HomeListViewData;
 import com.liu.Account.utils.DatabaseUtil;
 import com.liu.Account.utils.NumberUtil;
 import com.umeng.analytics.MobclickAgent;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -62,6 +63,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Adapt
         return view;
     }
 
+
     private void initView() {
 
         add= (FloatingActionButton) view.findViewById(R.id.add);
@@ -82,7 +84,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Adapt
     @Override
     public void onStart() {
         super.onStart();
-        LogUtil.i("OnStart");
 
         moneyIn.setText(getResources().getText(R.string.homeMoneyDefault));
         moneyOut.setText(getResources().getText(R.string.homeMoneyDefault));
@@ -97,55 +98,52 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Adapt
         date.setText(currentYear + "." + currentMonth);
 
 
-        String query;
-        query="select * from "+ Constants.tableName+" where year_date=? and month_date=? order by unixtime desc";
-        try {
-            Cursor cursor = db.queryCursor(query, new String[]{"" + currentYear, "" + currentMonth});
-            LogUtil.i("当前数据库大小"+cursor.getCount());
-            initArray(cursor);
-            getMoneyCount(cursor);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        List<Bill> billList= Bill.find(Bill.class,"is_Delete=? and happen_time>=? and happen_time<=?",new String[]{"0",DateUtil.getFirstDayOfMonth()+"",calendar.getTime().getTime()+""},null,"HAPPEN_TIME desc",null);
+        LogUtil.i("首页数据");
+        LogUtil.i(JSON.toJSONString(billList));
+        initArray(billList);
+        getMoneyCount(billList);
     }
 
-    private void getMoneyCount(Cursor cursor) {
-        if (cursor.getCount()==0)
+    private void getMoneyCount(List<Bill> billList) {
+        if (billList==null||billList.size()==0)
             return;
-        cursor.moveToFirst();
-        float _moneyIn=0,_moneyOut=0,_moneyAll=0;
+        BigDecimal _moneyIn=new BigDecimal(0);
+        BigDecimal _moneyOut=new BigDecimal(0);
+        BigDecimal _moneyAll=new BigDecimal(0);
 
-        do{
-            String spendMoney = cursor.getString(cursor.getColumnIndex("spendMoney"));
-            String moneyType=cursor.getString(cursor.getColumnIndex("moneyType"));
+        for (Bill bill:billList){
+            BigDecimal spendMoney =bill.getSpendMoney();
+            Integer moneyType=bill.getMoneyType();
+            if (moneyType==null||moneyType==Bill.MONEY_TYPE_OUT){
+                _moneyOut=_moneyOut.add(spendMoney);
+            }else if (moneyType==Bill.MONEY_TYPE_IN){
+                _moneyIn=_moneyIn.add(spendMoney);
+            }
 
-            if (moneyType.equals(getString(R.string.MoneyIn)))
-                _moneyIn=_moneyIn+Float.valueOf(spendMoney);
-            else
-                _moneyOut=_moneyOut+Float.valueOf(spendMoney);
-            _moneyAll=_moneyIn-_moneyOut;
-        } while (cursor.moveToNext());
+            _moneyAll=_moneyIn.subtract(_moneyOut);
+        }
 
-        if (_moneyIn>10000||_moneyIn<-10000){
-            String temp=String.valueOf(NumberUtil.roundHalfUp(_moneyIn / 10000));
+        if (_moneyIn.floatValue()>10000||_moneyIn.floatValue()<-10000){
+            String temp=String.valueOf(NumberUtil.roundHalfUp(_moneyIn.floatValue()/ 10000));
             moneyIn.setText(temp+"万");
         }else {
-            moneyIn.setText(String.valueOf(NumberUtil.roundHalfUp(_moneyIn)));
+            moneyIn.setText(String.valueOf(NumberUtil.roundHalfUp(_moneyIn.floatValue())));
         }
 
-        if (_moneyOut>10000||_moneyOut<-10000){
-            String s=String.valueOf(NumberUtil.roundHalfUp(_moneyOut/10000));
+        if (_moneyOut.floatValue()>10000||_moneyOut.floatValue()<-10000){
+            String s=String.valueOf(NumberUtil.roundHalfUp(_moneyOut.floatValue()/10000));
             moneyOut.setText(s+"万");
         }else {
-            moneyOut.setText(String.valueOf(NumberUtil.roundHalfUp(_moneyOut)));
+            moneyOut.setText(String.valueOf(NumberUtil.roundHalfUp(_moneyOut.floatValue())));
         }
 
-        if (_moneyAll>10000||_moneyAll<-10000){
-            String ss=String.valueOf(NumberUtil.roundHalfUp(_moneyAll/10000));
+        if (_moneyAll.floatValue()>10000||_moneyAll.floatValue()<-10000){
+            String ss=String.valueOf(NumberUtil.roundHalfUp(_moneyAll.floatValue()/10000));
             moneyAll.setText(ss+"万");
         }else {
 
-            moneyAll.setText(String.valueOf(NumberUtil.roundHalfUp(_moneyAll)));
+            moneyAll.setText(String.valueOf(NumberUtil.roundHalfUp(_moneyAll.floatValue())));
         }
         LogUtil.i("收入:" + _moneyIn + "\n支出：" + _moneyOut + "\n总计:" + _moneyAll);
     }
@@ -155,43 +153,34 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Adapt
     /**
      * 初始化本地数据库内数据
      * **/
-    private void initArray(Cursor cursor) {
-        if (cursor.getCount()==0)
+    private void initArray(List<Bill> billList) {
+        if (billList==null||billList.size()==0)
             return;
-        LogUtil.i(currentYear + "." + currentMonth + "数据共有" + cursor.getCount() + "条");
+        LogUtil.i(currentYear + "." + currentMonth + "数据共有" +billList.size() + "条");
+        for (Bill bill:billList){
+            String remark = bill.getRemark();
+            BigDecimal spendMoney =bill.getSpendMoney();
 
-        //{"_Id","spendMoney","remark","date","unixTime","creatTime","moneyType","Tag","year_date","month_date","day_year"};
-        while (cursor.moveToNext()){
-            String remark = cursor.getString(cursor.getColumnIndex("remark"));
-            String date = cursor.getString(cursor.getColumnIndex("date"));
-            String unixtime = cursor.getString(cursor.getColumnIndex("unixTime"));
-            String spendMoney = cursor.getString(cursor.getColumnIndex("spendMoney"));
-            String moneyType=cursor.getString(cursor.getColumnIndex("moneyType"));
-            String creatTime=cursor.getString(cursor.getColumnIndex("creatTime"));
-            String tag=cursor.getString(cursor.getColumnIndex("Tag"));
-            addToList(date,remark,spendMoney,unixtime,moneyType,creatTime,tag);
+            String tag=bill.getTag();
+            addToList(bill.getGmtCreate(),remark,spendMoney,bill.getHappenTime(),bill.getMoneyType(),tag);
         }
         adapter.notifyDataSetChanged();
     }
     /**
      * 添加数据到列表
      * **/
-    private void addToList(String date,String remark,String spendMoney,String unixtime,String moneyType,String creatTime,String tag){
+    private void addToList(Date createDate,String remark,BigDecimal spendMoney,Date happenTime,int moneyType,String tag){
+
         HomeListViewData data=new HomeListViewData();
-        data.setDate(date);
+        data.setGmtCreate(createDate);
         data.setRemark(remark);
-        data.setMoney(spendMoney);
-        data.setUnixTime(unixtime);
-        data.setCreatTime(creatTime);
+        data.setSpendMoney(spendMoney);
+        data.setHappenTime(happenTime);
         data.setMoneyType(moneyType);
-        if (moneyType.equals(getString(R.string.MoneyIn)))
-            data.setMoneyType("+");
-        else
-            data.setMoneyType("-");
         data.setTag(tag);
         for (int i=0;i< TagConstats.tagList.length;i++){
             if (tag.equals(TagConstats.tagList[i]))
-                data.set_tagID(TagConstats.tagImage[i]);
+                data.setTagId(TagConstats.tagImage[i]);
         }
 
         mDataArrays.add(data);

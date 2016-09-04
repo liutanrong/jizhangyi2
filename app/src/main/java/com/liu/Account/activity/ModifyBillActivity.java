@@ -30,16 +30,21 @@ import com.liu.Account.adapter.AddBillTagAdapter;
 import com.liu.Account.commonUtils.DateUtil;
 import com.liu.Account.commonUtils.LogUtil;
 import com.liu.Account.commonUtils.ToastUtil;
+import com.liu.Account.database.Bill;
 import com.liu.Account.initUtils.StatusBarUtil;
 import com.liu.Account.model.AddBillData;
 import com.liu.Account.model.AddBillTagData;
 import com.liu.Account.utils.DatabaseUtil;
 import com.liu.Account.utils.HttpUtil;
 import com.liu.Account.utils.NumberUtil;
+import com.liu.Account.utils.UserSettingUtil;
+import com.orm.SugarDb;
+import com.orm.util.SugarCursor;
 import com.squareup.timessquare.CalendarPickerView;
 import com.umeng.analytics.MobclickAgent;
 import com.zhy.autolayout.AutoLayoutActivity;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -279,9 +284,9 @@ public class ModifyBillActivity extends AutoLayoutActivity {
 
         //选择账单类别 收入还是支出
         if (typeRadio.getCheckedRadioButtonId()==R.id.add_bill_money_in)//收入
-            data.setType(getResources().getString(R.string.MoneyIn));
+            data.setType(Bill.MONEY_TYPE_IN);
         else//支出
-            data.setType(getResources().getString(R.string.MoneyOut));
+            data.setType(Bill.MONEY_TYPE_OUT);
 
         //账单金额
         if (moneyEdt.getText().toString().length()==0){
@@ -289,52 +294,54 @@ public class ModifyBillActivity extends AutoLayoutActivity {
             return;
         }else {
             String temp=moneyEdt.getText().toString().trim();
-            data.setMoney(String.valueOf(NumberUtil.roundHalfUp(temp)));
+            data.setMoney(new BigDecimal(NumberUtil.roundHalfUp(temp)));
         }
 
         //账单备注
         data.setRemark(remarkEdt.getText().toString().trim());
 
-        //creatTime
-        data.setCreatTime(creatTime);
 
         //当前日期是否为选择日期
-        if (data.isSelectTime())
+        if (data.getIsSelectTime())
         {//选择过日期
             Calendar c=Calendar.getInstance();
             c.set(Calendar.YEAR,data.getYear());
             c.set(Calendar.MONTH,data.getMonth()-1);
             c.set(Calendar.DAY_OF_MONTH,data.getDayOfMonth());
-            data.setUnixTime(String.valueOf(c.getTimeInMillis()));
-            data.setDate(DateUtil.getStringByFormat(c.getTimeInMillis(), DateUtil.dateFormatYMDHMSw));
+            data.setHappenTime(new Date(c.getTimeInMillis()));
+            data.setCreateTime(new Date(c.getTimeInMillis()));
         }else {//没有选择日期
-            data.setUnixTime(unixTime);
-            data.setDate(DateUtil.getStringByFormat(Long.parseLong(unixTime),DateUtil.dateFormatYMDHMSw));
+            data.setHappenTime(new Date(Long.parseLong(unixTime)));
+            data.setCreateTime(new Date(Long.parseLong(unixTime)));
         }
 
-        LogUtil.i("修改账单\n"+
-                "创建时间:" + data.getCreatTime() + "" +
-                "\n选择时间:" + data.getUnixTime() +
-                "\n发生时间:" + data.getDate() +
+        LogUtil.i(
                 "\n年：" + data.getYear() + "  月:" + data.getMonth() + "  日：" + data.getDayOfMonth() +
                 "\n账单类型:" + data.getType() +
                 "\n账单标签:" + data.getTag() +
                 "\n账单金额:" + data.getMoney() +
                 "\n账单备注:" + data.getRemark());
-        //{"_Id","spendMoney","remark","date","unixTime","creatTime","moneyType","Tag","year_date","month_date","day_year"};
-        ////   16-1-25 写入数据库
-        ContentValues cv=new ContentValues();
-        cv.put(Constants.column[1],data.getMoney());
-        cv.put(Constants.column[2],data.getRemark());
-        cv.put(Constants.column[3],data.getDate());
-        cv.put(Constants.column[4],data.getUnixTime());
-        cv.put(Constants.column[5],data.getCreatTime());
-        cv.put(Constants.column[6],data.getType());
-        cv.put(Constants.column[7],data.getTag());
-        cv.put(Constants.column[8],data.getYear());
-        cv.put(Constants.column[9],data.getMonth());
-        cv.put(Constants.column[10], data.getDayOfMonth());
-        db.update(Constants.tableName, cv,"unixTime=?",new String[]{unixTime});
+
+        List<Bill> billList=Bill.find(Bill.class,"HAPPEN_TIME=?",new String[]{data.getHappenTime().getTime()+""});
+        Bill bill=new Bill();
+        if (billList!=null&&billList.size()>0)
+            bill=billList.get(0);
+
+        bill.setSpendMoney(data.getMoney());
+        bill.setRemark(data.getRemark());
+        bill.setHappenTime(data.getHappenTime());
+        bill.setGmtCreate(data.getCreateTime());
+        bill.setIsDelete(false);
+        bill.setTag(data.getTag());
+        bill.setGmtModified(new Date());
+        bill.setInstallationId(UserSettingUtil.getInstallationId(context));
+        bill.setUserId(UserSettingUtil.getUserId(context));
+        bill.setMoneyType(data.getType());
+        bill.save();
+
+
+
+
         ////  16-1-25 在云端修改
         //// 16-1-28 修改账单
         Map<String,String> map = new HashMap<String,String>();
@@ -348,7 +355,7 @@ public class ModifyBillActivity extends AutoLayoutActivity {
         }
         MobclickAgent.onEventValue(context, "modefiAccount", map, 0);
         JSONObject dataJson=new JSONObject();
-        dataJson.put("creatTime",data.getDate());
+        dataJson.put("creatTime",data.getCreateTime());
         dataJson.put("type",data.getType());
         dataJson.put("tag",data.getTag());
         dataJson.put("money",data.getMoney());

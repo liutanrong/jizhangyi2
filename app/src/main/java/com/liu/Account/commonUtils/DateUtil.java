@@ -23,6 +23,8 @@ public class DateUtil {
 
     /** 时间日期格式化到年月日时分. */
     public static final String dateFormatYMDHM = "yyyy-MM-dd HH:mm";
+    /** 时间日期格式化到年月日时分. */
+    public static final String dateFormatYMDHMD = "yyyy.MM.dd HH:mm";
 
     /** 时间日期格式化到月日. */
     public static final String dateFormatMD = "MM/dd";

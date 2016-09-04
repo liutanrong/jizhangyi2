@@ -22,7 +22,7 @@ public class TagConstats {
     public static final int InOrOutPosition=0;
 
     public static String OrderByShow[]={"金额大小","创建时间","支出时间"};
-    public static String OrderBySelet[]={"spendMoney","creatTime","unixTime"};
+    public static String OrderBySelet[]={"spend_Money","gmt_create","happen_time"};
 
     //改这里的时候记得改adapter
     public static String TagTypeShow[]={"全部","餐饮","娱乐","购物","交通","工资","其他","无分类"};

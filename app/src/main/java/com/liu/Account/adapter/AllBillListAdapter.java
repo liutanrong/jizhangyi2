@@ -11,10 +11,13 @@ import android.widget.TextView;
 
 import com.liu.Account.Constants.Constants;
 import com.liu.Account.R;
+import com.liu.Account.commonUtils.DateUtil;
+import com.liu.Account.database.Bill;
 import com.liu.Account.fragment.AllBillFragment;
 import com.liu.Account.model.AllBillListGroupData;
 import com.liu.Account.model.HomeListViewData;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -140,13 +143,21 @@ public class AllBillListAdapter extends BaseExpandableListAdapter {
 
                 HomeListViewData entity = groups.get(groupPosition).child.get(childPosition);
                 if (entity!=null) {
-                    holderChild.unixTime.setText(entity.getUnixTime());
+                    holderChild.unixTime.setText(entity.getHappenTime().getTime()+"");
                     holderChild.remarkInList.setText(entity.getRemark());
-                    holderChild.dateInList.setText(entity.getDate());
-                    holderChild.spendMoneyInList.setText(entity.getMoney());
-                    holderChild.moneyType.setText(entity.getMoneyType());
-                    holderChild.creatTime.setText(entity.getCreatTime());
-                    holderChild.tag.setImageResource(entity.get_tagID());
+                    String dateStr= DateUtil.getStringByFormat(entity.getHappenTime(),DateUtil.dateFormatYMDHMD);
+                    holderChild.dateInList.setText(dateStr==null?"------":dateStr);
+                    String money=entity.getSpendMoney().setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
+                    holderChild.spendMoneyInList.setText(money);
+                    String moneyType="";
+                    if (entity.getMoneyType()==null||entity.getMoneyType()== Bill.MONEY_TYPE_IN){
+                        moneyType=context.getString(R.string.MoneyIn);
+                    }else if (entity.getMoneyType()==Bill.MONEY_TYPE_OUT){
+                        moneyType=context.getString(R.string.MoneyOut);
+                    }
+                    holderChild.moneyType.setText(moneyType);
+                    holderChild.creatTime.setText(entity.getGmtCreate().getTime()+"");
+                    holderChild.tag.setImageResource(entity.getTagId());
                     holderChild.tagText.setText(entity.getTag());
 
                 }

@@ -8,8 +8,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.liu.Account.R;
+import com.liu.Account.commonUtils.DateUtil;
+import com.liu.Account.database.Bill;
 import com.liu.Account.model.HomeListViewData;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,14 +67,23 @@ public class HomeListViewAdapter extends BaseAdapter {
             holder = (ViewHolder) convertView.getTag();
         }
         HomeListViewData entity = datas.get(position);
-        holder.unixTime.setText(entity.getUnixTime());
+
+        holder.unixTime.setText(entity.getHappenTime().getTime()+"");
         holder.remarkInList.setText(entity.getRemark());
-        holder.dateInList.setText(entity.getDate());
-        holder.spendMoneyInList.setText(entity.getMoney());
-        holder.moneyType.setText(entity.getMoneyType());
-        holder.creatTime.setText(entity.getCreatTime());
+        String dateStr= DateUtil.getStringByFormat(entity.getHappenTime(),DateUtil.dateFormatYMDHMD);
+        holder.dateInList.setText(dateStr==null?"------":dateStr);
+        String money=entity.getSpendMoney().setScale(2, BigDecimal.ROUND_HALF_DOWN).toString();
+        holder.spendMoneyInList.setText(money);
+        String moneyType="";
+        if (entity.getMoneyType()==null||entity.getMoneyType()== Bill.MONEY_TYPE_IN){
+            moneyType=context.getString(R.string.MoneyIn);
+        }else if (entity.getMoneyType()==Bill.MONEY_TYPE_OUT){
+            moneyType=context.getString(R.string.MoneyOut);
+        }
+        holder.moneyType.setText(moneyType);
+        holder.creatTime.setText(entity.getGmtCreate().getTime()+"");
+        holder.tag.setImageResource(entity.getTagId());
         holder.tagText.setText(entity.getTag());
-        holder.tag.setImageResource(entity.get_tagID());
 
         return convertView;
     }

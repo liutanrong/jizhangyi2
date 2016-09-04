@@ -2,7 +2,9 @@ package com.liu.Account.model;
 
 import com.liu.Account.Constants.TagConstats;
 
+import java.math.BigDecimal;
 import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Created by deonte on 16-1-24.
@@ -11,44 +13,18 @@ public class AddBillData {
     private int year,month,dayOfMonth;
 
 
-    private String money;
+    private BigDecimal money;
     private String remark;
-    private String date;
 
-    private String type;
+    private int type;
     private String tag;
-    private String unixTime;//显示时间
-    private String creatTime;//创建时间
+    private Date happenTime;//显示时间
+    private Date createTime;//创建时间
 
 
 
 
     private boolean isSelectTime=false;
-
-    public boolean isSelectTime() {
-        return isSelectTime;
-    }
-
-    public void setIsSelectTime(boolean isSelectTime) {
-        this.isSelectTime = isSelectTime;
-    }
-
-    public String getCreatTime() {
-
-        return creatTime;
-    }
-
-    public void setCreatTime(String creatTime) {
-        this.creatTime = creatTime;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
 
     public AddBillData(boolean init){
         if (init) {
@@ -56,14 +32,18 @@ public class AddBillData {
             year= calendar.get(Calendar.YEAR);
             month = calendar.get(Calendar.MONTH)+1;
             dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
-
-            type=null;
-            money=null;
-            unixTime=null;
             tag= TagConstats.tagList[0];
-            remark=null;
         }
     }
+
+    public boolean getIsSelectTime() {
+        return isSelectTime;
+    }
+
+    public void setIsSelectTime(boolean selectTime) {
+        this.isSelectTime = selectTime;
+    }
+
     public int getYear() {
         return year;
     }
@@ -88,28 +68,28 @@ public class AddBillData {
         this.dayOfMonth = dayOfMonth;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getMoney() {
+    public BigDecimal getMoney() {
         return money;
     }
 
-    public void setMoney(String money) {
+    public void setMoney(BigDecimal money) {
         this.money = money;
     }
 
-    public String getUnixTime() {
-        return unixTime;
+    public String getRemark() {
+        return remark;
     }
 
-    public void setUnixTime(String unixTime) {
-        this.unixTime = unixTime;
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 
     public String getTag() {
@@ -120,11 +100,21 @@ public class AddBillData {
         this.tag = tag;
     }
 
-    public String getRemark() {
-        return remark;
+    public Date getHappenTime() {
+        return happenTime;
     }
 
-    public void setRemark(String remark) {
-        this.remark = remark;
+    public void setHappenTime(Date happenTime) {
+        this.happenTime = happenTime;
     }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+
 }

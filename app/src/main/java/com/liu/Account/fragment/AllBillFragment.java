@@ -20,15 +20,27 @@ import com.liu.Account.R;
 import com.liu.Account.activity.LookBillActivity;
 import com.liu.Account.adapter.AllBillListAdapter;
 import com.liu.Account.commonUtils.LogUtil;
+import com.liu.Account.database.Bill;
 import com.liu.Account.model.AllBillListGroupData;
 import com.liu.Account.model.HomeListViewData;
 import com.liu.Account.utils.DatabaseUtil;
 import com.liu.Account.utils.NumberUtil;
+import com.orm.util.Collection;
 import com.umeng.analytics.MobclickAgent;
+
+import org.codehaus.jackson.map.util.Comparators;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by deonte on 16-1-23.
@@ -69,91 +81,134 @@ public class AllBillFragment extends Fragment implements ExpandableListView.OnCh
     private void initArray() {
         groupDatas.clear();
         adapter.notifyDataSetChanged();
-        db=new DatabaseUtil(activity,Constants.DBNAME,1);
-        String query;
-        query="select distinct year_date,month_date from "+Constants.tableName+" order by unixtime desc";
-
-        try {
-            Cursor cursor = db.queryCursor(query,null);
-            while (cursor.moveToNext()){
-                String year = cursor.getString(cursor.getColumnIndex("year_date"));
-                String month = cursor.getString(cursor.getColumnIndex("month_date"));
-                String[] count=getCount(year, month);
-                //返回 count0 是收支金额  count1 是收入或支出 count2 为总支出 count3 为总收入
-
-                List<HomeListViewData> child=new ArrayList<>();
-
-                HomeListViewData d=new HomeListViewData();
-                d.setTotalMoney(count[0]);
-                d.setAllInMoney(count[3]);
-                d.setAllOutMoney(count[2]);
-                child.add(d);
-                // child.add(d);
-                initChild(year, month, child);
-
-                AllBillListGroupData entity =new AllBillListGroupData();
-                entity.setMoneyType(count[1]);
-                entity.setTotalMoney(count[0]);
-                entity.setAllTime(year + "年" + month + "月");
-                entity.setChild(child);
-                groupDatas.add(entity);
-                adapter.notifyDataSetChanged();
-            }
-        }catch (Exception e){
-            e.printStackTrace();
+        List<Bill> billList=Bill.find(Bill.class,"is_delete=?",new String[]{"0"},null,"happen_time desc",null);
+        Set<String> yearAndMonthSet=new HashSet<>();
+        for (Bill bill:billList){
+            Date date=bill.getHappenTime();
+            Calendar calendar=Calendar.getInstance();
+            calendar.setTime(date);
+            String year=calendar.get(Calendar.YEAR)+"";
+            String month=calendar.get(Calendar.MONTH)+"";
+            yearAndMonthSet.add(year+","+month);
         }
-        db.close();
+        List<String> yearAndMonthList=new ArrayList<>();
+        for (String entry:yearAndMonthSet){
+            yearAndMonthList.add(entry);
+        }
+
+        Collections.sort(yearAndMonthList, new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                int o1Year=Integer.valueOf(o1.split(",")[0]);
+                int o2Year=Integer.valueOf(o2.split(",")[0]);
+                if (o1Year>o2Year)
+                    return -1;
+                else if (o1Year<o2Year)
+                    return 1;
+                else
+                    return 0;
+            }
+        });
+        Collections.sort(yearAndMonthList, new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                int o1Year=Integer.valueOf(o1.split(",")[0]);
+                int o2Year=Integer.valueOf(o2.split(",")[0]);
+                if(o1Year==o2Year){
+                    int o1Month=Integer.valueOf(o1.split(",")[1]);
+                    int o2Month=Integer.valueOf(o2.split(",")[1]);
+                    if (o1Month>o2Month)
+                        return -1;
+                    else if (o1Month<o2Month)
+                        return 1;
+                    else
+                        return 0;
+                }
+                return 0;
+            }
+        });
+        for (String yearAndMonth:yearAndMonthList){
+            String year =yearAndMonth.split(",")[0];
+            String month =yearAndMonth.split(",")[1];
+            String[] count=getCount(year, month,billList);
+            //返回 count0 是收支金额  count1 是收入或支出 count2 为总支出 count3 为总收入
+
+            List<HomeListViewData> child=new ArrayList<>();
+
+            HomeListViewData d=new HomeListViewData();
+            d.setTotalMoney(count[0]);
+            d.setAllInMoney(count[3]);
+            d.setAllOutMoney(count[2]);
+            child.add(d);
+            // child.add(d);
+            initChild(year, month, child,billList);
+
+            AllBillListGroupData entity =new AllBillListGroupData();
+            entity.setMoneyType(count[1]);
+            entity.setTotalMoney(count[0]);
+            int monthh=Integer.valueOf(month)+1;
+            entity.setAllTime(year + "年" + monthh + "月");
+            entity.setChild(child);
+            groupDatas.add(entity);
+            adapter.notifyDataSetChanged();
+        }
+
     }
     /**
      * @param year,month,child,order,way 参数
      *
      * **/
 
-    private void initChild(String year, String month, List<HomeListViewData> child) {
-        String query = "select  * from "+Constants.tableName+" where year_date='" + year + "' and month_date='" + month + "' order by unixtime desc";
+    private void initChild(String year, String month, List<HomeListViewData> child,List<Bill> billList) {
+        Calendar calendarStart=Calendar.getInstance();
+        calendarStart.set(Calendar.YEAR,Integer.valueOf(year));
+        calendarStart.set(Calendar.MONTH,Integer.valueOf(month));
+        calendarStart.set(Calendar.DAY_OF_MONTH,0);
+        calendarStart.set(Calendar.HOUR,0);
+        calendarStart.set(Calendar.MINUTE,0);
+        calendarStart.set(Calendar.SECOND,0);
 
-        db=new DatabaseUtil(activity,Constants.DBNAME,1);
-        try{
-            Cursor cursor = db.queryCursor(query,null);
-            while (cursor.moveToNext()) {
-                //遍历
-                try {
-                    String remark = cursor.getString(cursor.getColumnIndex("remark"));
-                    String date = cursor.getString(cursor.getColumnIndex("date"));
-                    String unixtime = cursor.getString(cursor.getColumnIndex("unixTime"));
-                    String spendMoney = cursor.getString(cursor.getColumnIndex("spendMoney"));
-                    String moneyType=cursor.getString(cursor.getColumnIndex("moneyType"));
-                    String creatTime=cursor.getString(cursor.getColumnIndex("creatTime"));
-                    String tag=cursor.getString(cursor.getColumnIndex("Tag"));
+        int monthInt=Integer.valueOf(month);
+        Calendar calendarEnd=Calendar.getInstance();
+        if (monthInt<=11){
 
-                    if (creatTime==null){
-                        creatTime = "---------";
-                    }
-                    HomeListViewData d = new HomeListViewData();
-                    d.setCreatTime(creatTime);
-                    d.setMoney(spendMoney);
-                    d.setUnixTime(unixtime);
-                    d.setDate(date);
-                    d.setRemark(remark);
-                    d.setTag(tag);
-                    for (int i=0;i< TagConstats.tagList.length;i++){
-                        if (TagConstats.tagList[i].equals(tag))
-                            d.set_tagID(TagConstats.tagImage[i]);
-                    }
-                    if (moneyType.equals(getString(R.string.MoneyIn)))
-                        d.setMoneyType("+");
-                    else if (moneyType.equals(getString(R.string.MoneyOut)))
-                        d.setMoneyType("-");
-                    child.add(d);
-                } catch (Exception e) {
-                    print(e.toString());
-                }
-            }
+            calendarStart.set(Calendar.YEAR,Integer.valueOf(year));
+            calendarStart.set(Calendar.MONTH,monthInt+1);
+        }else {
 
-        } catch (Exception e) {
-            print(e.toString());
+            calendarStart.set(Calendar.YEAR,Integer.valueOf(year)+1);
+            calendarStart.set(Calendar.MONTH,0);
         }
-        db.close();
+        calendarStart.set(Calendar.DAY_OF_MONTH,0);
+        calendarStart.set(Calendar.HOUR,0);
+        calendarStart.set(Calendar.MINUTE,0);
+        calendarStart.set(Calendar.SECOND,0);
+
+        for (Bill bill:billList){
+            if (bill.getHappenTime().getTime()>=calendarStart.getTime().getTime()
+                    &&bill.getHappenTime().getTime()<calendarEnd.getTime().getTime()){
+
+                String remark = bill.getRemark();
+                BigDecimal spendMoney =bill.getSpendMoney();
+
+                String tag=bill.getTag();
+
+
+                HomeListViewData data=new HomeListViewData();
+                data.setGmtCreate(bill.getGmtCreate());
+                data.setRemark(remark);
+                data.setSpendMoney(spendMoney);
+                data.setHappenTime(bill.getHappenTime());
+                data.setMoneyType(bill.getMoneyType());
+                data.setTag(tag);
+                for (int i=0;i< TagConstats.tagList.length;i++){
+                    if (tag.equals(TagConstats.tagList[i]))
+                        data.setTagId(TagConstats.tagImage[i]);
+                }
+                child.add(data);
+
+            }
+        }
     }
 
     /**
@@ -161,35 +216,51 @@ public class AllBillFragment extends Fragment implements ExpandableListView.OnCh
      * @param year 要查询的年份
      * @return count[4]  0 总收支 1 收支类别(收入或支出) 2 总支出 3 总收入
      * **/
-    private String[] getCount(String year,String month) {
+    private String[] getCount(String year,String month,List<Bill> billList) {
         float InCount = 0;
         float OutCount = 0;
         float allCount;
         String[] count = new String[4];
-        String query = "select  * from "+Constants.tableName+" where year_date='" + year + "' and month_date='" + month + "' order by unixtime desc";
+        Calendar calendarStart=Calendar.getInstance();
+        calendarStart.set(Calendar.YEAR,Integer.valueOf(year));
+        calendarStart.set(Calendar.MONTH,Integer.valueOf(month));
+        calendarStart.set(Calendar.DAY_OF_MONTH,0);
+        calendarStart.set(Calendar.HOUR,0);
+        calendarStart.set(Calendar.MINUTE,0);
+        calendarStart.set(Calendar.SECOND,0);
+
+        int monthInt=Integer.valueOf(month);
 
 
-        db=new DatabaseUtil(activity,Constants.DBNAME,1);
-        try {
-            Cursor cursor = db.queryCursor(query,null);
-            while (cursor.moveToNext()) {
-                //遍历
-                try {
-                    String spendMoney = cursor.getString(cursor.getColumnIndex("spendMoney"));
-                    String moneyType=cursor.getString(cursor.getColumnIndex("moneyType"));
-                    if (moneyType.equals("收入")) {
-                        InCount = InCount + Float.parseFloat(spendMoney);
-                    } else {
-                        OutCount = OutCount + Float.parseFloat(spendMoney);
-                    }
-                } catch (Exception e) {
-                    System.out.println(e.toString());
-                }
-            }
+        Calendar calendarEnd=Calendar.getInstance();
+        if (monthInt<=11){
 
-        } catch (Exception e) {
-            System.out.println(e.toString());
+            calendarStart.set(Calendar.YEAR,Integer.valueOf(year));
+            calendarStart.set(Calendar.MONTH,monthInt+1);
+        }else {
+
+            calendarStart.set(Calendar.YEAR,Integer.valueOf(year)+1);
+            calendarStart.set(Calendar.MONTH,0);
         }
+        calendarStart.set(Calendar.DAY_OF_MONTH,0);
+        calendarStart.set(Calendar.HOUR,0);
+        calendarStart.set(Calendar.MINUTE,0);
+        calendarStart.set(Calendar.SECOND,0);
+       for (Bill bill:billList){
+           if (bill.getHappenTime().getTime()>=calendarStart.getTime().getTime()
+                   &&bill.getHappenTime().getTime()<calendarEnd.getTime().getTime()){
+
+               String spendMoney =bill.getSpendMoney().toString();
+               Integer moneyType=bill.getMoneyType();
+               if (moneyType==null||moneyType==Bill.MONEY_TYPE_OUT) {
+                   OutCount = OutCount + Float.parseFloat(spendMoney);
+               } else {
+
+                   InCount = InCount + Float.parseFloat(spendMoney);
+               }
+           }
+       }
+
         allCount = OutCount - InCount;
 
         OutCount=NumberUtil.roundHalfUp(OutCount);

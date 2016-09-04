@@ -26,18 +26,22 @@ import com.liu.Account.adapter.AddBillTagAdapter;
 import com.liu.Account.commonUtils.DateUtil;
 import com.liu.Account.commonUtils.LogUtil;
 import com.liu.Account.commonUtils.ToastUtil;
+import com.liu.Account.database.Bill;
 import com.liu.Account.initUtils.StatusBarUtil;
 import com.liu.Account.model.AddBillData;
 import com.liu.Account.model.AddBillTagData;
 import com.liu.Account.utils.DatabaseUtil;
 import com.liu.Account.utils.HttpUtil;
 import com.liu.Account.utils.NumberUtil;
+import com.liu.Account.utils.UserSettingUtil;
 import com.squareup.timessquare.CalendarPickerView;
 import com.umeng.analytics.MobclickAgent;
 import com.zhy.autolayout.AutoLayoutActivity;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -203,6 +207,7 @@ public class AddBillActivity extends AutoLayoutActivity {
                                 data.setYear(calendar.get(Calendar.YEAR));
                                 data.setDayOfMonth(calendar.get(Calendar.DAY_OF_MONTH));
                                 data.setMonth(calendar.get(Calendar.MONTH));
+
                                 data.setIsSelectTime(true);
                                 //Toast.makeText(getApplicationContext(), sd + "", Toast.LENGTH_SHORT).show();
                             }
@@ -235,9 +240,9 @@ public class AddBillActivity extends AutoLayoutActivity {
 
         //选择账单类别 收入还是支出
         if (typeRadio.getCheckedRadioButtonId()==R.id.add_bill_money_in)//收入
-            data.setType(getResources().getString(R.string.MoneyIn));
+            data.setType(Bill.MONEY_TYPE_IN);
         else//支出
-            data.setType(getResources().getString(R.string.MoneyOut));
+            data.setType(Bill.MONEY_TYPE_OUT);
 
         //账单金额
         if (moneyEdt.getText().toString().length()==0){
@@ -245,32 +250,30 @@ public class AddBillActivity extends AutoLayoutActivity {
             return;
         }else {
             String temp=moneyEdt.getText().toString().trim();
-            data.setMoney(String.valueOf(NumberUtil.roundHalfUp(temp)));
+            data.setMoney(new BigDecimal(NumberUtil.roundHalfUp(temp)));
         }
 
         //账单备注
         data.setRemark(remarkEdt.getText().toString().trim());
 
         //creatTime
-        data.setCreatTime(DateUtil.getStringByFormat(calendar.getTimeInMillis(),DateUtil.dateFormatYMDHMSw));
+        data.setCreateTime(new Date(calendar.getTimeInMillis()));
 
         //当前日期是否为选择日期
-        if (data.isSelectTime())
+        if (data.getIsSelectTime())
         {//选择过日期
             Calendar c=Calendar.getInstance();
             c.set(Calendar.YEAR,data.getYear());
             c.set(Calendar.MONTH,data.getMonth()-1);
             c.set(Calendar.DAY_OF_MONTH,data.getDayOfMonth());
-            data.setUnixTime(String.valueOf(c.getTimeInMillis()));
-            data.setDate(DateUtil.getStringByFormat(c.getTimeInMillis(), DateUtil.dateFormatYMDHMSw));
+            data.setHappenTime(new Date(c.getTimeInMillis()));
+            data.setCreateTime(new Date(c.getTimeInMillis()));
         }else {//没有选择日期
-            data.setUnixTime(String.valueOf(calendar.getTimeInMillis()));
-            data.setDate(DateUtil.getStringByFormat(calendar.getTimeInMillis(),DateUtil.dateFormatYMDHMSw));
+            data.setHappenTime(new Date(calendar.getTimeInMillis()));
+            data.setCreateTime(new Date(calendar.getTimeInMillis()));
         }
 
-        String log="创建时间:"+data.getCreatTime()+"" +
-                "\n选择时间:"+data.getUnixTime()+
-                "\n发生时间:"+data.getDate()+
+        String log=
                 "\n年："+data.getYear()+"  月:"+data.getMonth()+"  日："+data.getDayOfMonth()+
                 "\n账单类型:"+data.getType()+
                 "\n账单标签:"+data.getTag() +
@@ -280,22 +283,22 @@ public class AddBillActivity extends AutoLayoutActivity {
         //{"_Id","spendMoney","remark","date","unixTime","creatTime","moneyType","Tag","year_date","month_date","day_year"};
         ////  16-1-25 写入数据库
 
-        ContentValues cv=new ContentValues();
-        cv.put(Constants.column[1],data.getMoney());
-        cv.put(Constants.column[2],data.getRemark());
-        cv.put(Constants.column[3],data.getDate());
-        cv.put(Constants.column[4],data.getUnixTime());
-        cv.put(Constants.column[5],data.getCreatTime());
-        cv.put(Constants.column[6],data.getType());
-        cv.put(Constants.column[7],data.getTag());
-        cv.put(Constants.column[8],data.getYear());
-        cv.put(Constants.column[9],data.getMonth());
-        cv.put(Constants.column[10], data.getDayOfMonth());
-        db.insert(Constants.tableName, cv);
-        ////  16-1-25 添加账单 统计数据
+
+        Bill bill=new Bill();
+        bill.setSpendMoney(data.getMoney());
+        bill.setRemark(data.getRemark());
+        bill.setHappenTime(data.getHappenTime());
+        bill.setGmtCreate(data.getCreateTime());
+        bill.setGmtModified(new Date());
+        bill.setIsDelete(false);
+        bill.setTag(data.getTag());
+        bill.setInstallationId(UserSettingUtil.getInstallationId(context));
+        bill.setUserId(UserSettingUtil.getUserId(context));
+        bill.setMoneyType(data.getType());
+
+        bill.save();
 
         String logg=
-                " 发生时间:"+data.getDate()+
                         " 账单类型:"+data.getType()+
                         " 账单标签:"+data.getTag() +
                         " 账单金额:"+data.getMoney()+
@@ -327,7 +330,7 @@ public class AddBillActivity extends AutoLayoutActivity {
 
 
         JSONObject dataJson=new JSONObject();
-        dataJson.put("creatTime",data.getDate());
+        dataJson.put("creatTime",data.getCreateTime().getTime());
         dataJson.put("type",data.getType());
         dataJson.put("tag",data.getTag());
         dataJson.put("money",data.getMoney());

@@ -23,6 +23,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.alibaba.fastjson.JSON;
 import com.liu.Account.Constants.Constants;
 import com.liu.Account.Constants.TagConstats;
 import com.liu.Account.R;
@@ -31,6 +32,7 @@ import com.liu.Account.adapter.HomeListViewAdapter;
 import com.liu.Account.application.MyApplication;
 import com.liu.Account.commonUtils.DateUtil;
 import com.liu.Account.commonUtils.LogUtil;
+import com.liu.Account.database.Bill;
 import com.liu.Account.model.HomeListViewData;
 import com.liu.Account.model.SearchData;
 import com.liu.Account.utils.DatabaseUtil;
@@ -38,6 +40,7 @@ import com.liu.Account.utils.NumberUtil;
 import com.squareup.timessquare.CalendarPickerView;
 import com.umeng.analytics.MobclickAgent;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -82,8 +85,9 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
         data=new SearchData();
         Calendar calendar=Calendar.getInstance();
         data.setStartTime(String.valueOf(DateUtil.getFirstDayOfMonth()));
+        data.setStartDate(new Date(DateUtil.getFirstDayOfMonth()));
         data.setEndTime(String.valueOf(calendar.getTimeInMillis()));
-
+        data.setEndDate(new Date(calendar.getTimeInMillis()));
         String temp=DateUtil.getStringByFormat(DateUtil.getFirstDayOfMonth(), DateUtil.dateFormatYMDD)
                 +"——"+DateUtil.getStringByFormat(calendar.getTimeInMillis(), DateUtil.dateFormatYMDD);
         time.setText(temp);
@@ -149,7 +153,9 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
                                         +"——"+DateUtil.getStringByFormat(en, DateUtil.dateFormatYMDD);
                                 time.setText(temp);
                                 data.setStartTime(String.valueOf(st));
+                                data.setStartDate(new Date(st));
                                 data.setEndTime(String.valueOf(calendar.getTimeInMillis()));
+                                data.setEndDate(new Date(calendar.getTimeInMillis()));
                                 queryString();
                             }
                         })
@@ -322,85 +328,94 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
 
     private void queryString() {
         String query=null;
+        String whereCaluse="";
+        String[] whereArray;
+        Bill n=new Bill();
+
         if (data.getInOrOut().equals(TagConstats.InOrOutSelect[TagConstats.InOrOutPosition])) {
             //如果选取 收入 支出 类型为全部
             if (data.getTag().equals(TagConstats.TagTypeSelect[TagConstats.TagTypePosition])) {
                 //选取的标签也是全部
-                query = "select * from " + Constants.tableName + " where unixTime BETWEEN '" + data.getStartTime() + "' AND " +
-                        "' " + data.getEndTime() +
-                        "'and remark like '%" + data.getSearchString() + "%" +
-                        "' order by  " + data.getOrderBy() + " " + data.getOrderWay();
+                whereCaluse="is_Delete=?  and happen_time>=? and happen_time <=?  and remark like ?";
+                whereArray=new String[]{"0",
+                        data.getStartDate().getTime()+"",
+                        data.getEndDate().getTime()+""
+                        ,"%" + data.getSearchString() + "%"};
             } else {
                 //选取的标签不是全部
-                query = "select * from " + Constants.tableName +
-                        " where unixTime BETWEEN '" + data.getStartTime() + "' AND " + "' " + data.getEndTime() +
-                        "'and remark like '%" + data.getSearchString() + "%" +
-                        "'and Tag='" + data.getTag() +
-                        "'order by  " + data.getOrderBy() + " "
-                        + data.getOrderWay();
+
+                whereCaluse="is_Delete=?  and happen_time>=? and happen_time <=?  and remark like ? and tag=?";
+                whereArray=new String[]{"0",
+                        data.getStartDate().getTime()+"",
+                        data.getEndDate().getTime()+""
+                        ,"%" + data.getSearchString() + "%"
+                        ,data.getTag()};
             }
         } else {
             //如果选取 收入 支出 类型不是全部
             if (data.getTag().equals(TagConstats.TagTypeSelect[TagConstats.TagTypePosition])) {
                 //选取的标签时全部
-                query = "select * from " + Constants.tableName +
-                        " where unixTime  BETWEEN '" + data.getStartTime() + "' AND " + "'" + data.getEndTime() +
-                        "'and remark like '%" + data.getSearchString() + "%" +
-                        "' and  moneyType='" + data.getInOrOut() +
-                        "' order by " + data.getOrderBy() + " "
-                        + data.getOrderWay();
+
+                whereCaluse="is_Delete=?  and happen_time>=? and happen_time <=?  " +
+                        "and remark like ? " +
+                        "and money_Type=?";
+                String moneyType="";
+                if (data.getInOrOut().equals(getString(R.string.MoneyIn))){
+                    moneyType=Bill.MONEY_TYPE_IN+"";
+                }else if (data.getInOrOut().equals(getString(R.string.MoneyOut))){
+
+                    moneyType=Bill.MONEY_TYPE_OUT+"";
+                }
+                whereArray=new String[]{"0",
+                        data.getStartDate().getTime()+"",
+                        data.getEndDate().getTime()+""
+                        ,"%" + data.getSearchString() + "%"
+                        ,moneyType};
             } else {
                 //选取的标签不是全部
-                query = "select * from " + Constants.tableName +
-                        " where unixTime  BETWEEN '" + data.getStartTime() + "' AND " + "'" + data.getEndTime() +
-                        "' and remark like '%" + data.getSearchString() + "%" +
-                        "' and  moneyType='" + data.getInOrOut() +
-                        "' and Tag='" + data.getTag() + "' " +
-                        " order by " + data.getOrderBy() + " "
-                        + data.getOrderWay();
+                whereCaluse="is_Delete=?  and happen_time>=? and happen_time <=?  " +
+                        "and remark like ? " +
+                        "and money_Type=? "+
+                        "and tag=?";
+                whereArray=new String[]{"0",
+                        data.getStartDate().getTime()+"",
+                        data.getEndDate().getTime()+""
+                        ,"%" + data.getSearchString() + "%"
+                        ,data.getInOrOut()
+                        ,data.getTag()};
             }
         }
 
-        LogUtil.i("查询语句"+query);
-        query(query);
+        LogUtil.i("查询语句条件"+ JSON.toJSONString(whereArray));
+        List<Bill> billList=Bill.find(Bill.class,whereCaluse,whereArray,null,data.getOrderBy()+" "+data.getOrderWay(),null);
+        query(billList);
     }
 
-    private void query(String query) {
+    private void query( List<Bill> billList) {
         mDataArrays.clear();
         adapter.notifyDataSetChanged();
         accountMoney.setText("账单金额: ---");
         float  money=0;
-        DatabaseUtil databaseUtil=new DatabaseUtil(activity,Constants.DBNAME,1);
-        Cursor cursor=databaseUtil.queryCursor(query, null);
-        LogUtil.i("搜索数目" + cursor.getCount());
-        accountSize.setText("账单数目: " + cursor.getCount() + "笔");
-        while (cursor.moveToNext()) {
+        LogUtil.i("搜索数目" + billList.size());
+        accountSize.setText("账单数目: " + billList.size() + "笔");
+
+        for (Bill bill:billList){
             //遍历
-            try {
 
-                String remark = cursor.getString(cursor.getColumnIndex("remark"));
-                String date = cursor.getString(cursor.getColumnIndex("date"));
-                String unixtime = cursor.getString(cursor.getColumnIndex("unixTime"));
-                String spendMoney = cursor.getString(cursor.getColumnIndex("spendMoney"));
-                String moneyType=cursor.getString(cursor.getColumnIndex("moneyType"));
-                String creatTime=cursor.getString(cursor.getColumnIndex("creatTime"));
-                String tag=cursor.getString(cursor.getColumnIndex("Tag"));
 
-                if (moneyType.equals("收入")){
-                    money = money + Float.parseFloat(spendMoney);
-                }else {
-                    money = money - Float.parseFloat(spendMoney);
-                }
-
-                money = NumberUtil.roundHalfUp(money);
-                if (creatTime==null){
-                    creatTime="---------";
-                }
-                addToList(date, remark, spendMoney, unixtime, moneyType, creatTime, tag);
-            } catch (Exception e) {
-                LogUtil.i(e.toString());
+            String remark = bill.getRemark();
+            BigDecimal spendMoney = bill.getSpendMoney();
+            String tag=bill.getTag();
+            addToList(bill.getGmtCreate(),remark,spendMoney,bill.getHappenTime(),bill.getMoneyType(),tag);
+            if (bill.getMoneyType()==Bill.MONEY_TYPE_IN){
+                money = money + Float.parseFloat(spendMoney.floatValue()+"");
+            }else {
+                money = money - Float.parseFloat(spendMoney.floatValue()+"");
             }
+
+            money = NumberUtil.roundHalfUp(money);
         }
+
         if (money!=0) {
             String te=null;
             if (money>10000||money<-10000){
@@ -410,7 +425,6 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
             }
             accountMoney.setText("账单金额: " + te);
         }
-        databaseUtil.close();
         adapter.notifyDataSetChanged();
     }
 
@@ -421,22 +435,18 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
     /**
      * 添加数据到列表
      * **/
-    private void addToList(String date,String remark,String spendMoney,String unixtime,String moneyType,String creatTime,String tag){
+    private void addToList(Date createDate, String remark, BigDecimal spendMoney, Date happenTime, int moneyType, String tag){
+
         HomeListViewData data=new HomeListViewData();
-        data.setDate(date);
+        data.setGmtCreate(createDate);
         data.setRemark(remark);
-        data.setMoney(spendMoney);
-        data.setUnixTime(unixtime);
-        data.setCreatTime(creatTime);
+        data.setSpendMoney(spendMoney);
+        data.setHappenTime(happenTime);
         data.setMoneyType(moneyType);
-        if (moneyType.equals(getString(R.string.MoneyIn)))
-            data.setMoneyType("+");
-        else
-            data.setMoneyType("-");
         data.setTag(tag);
         for (int i=0;i< TagConstats.tagList.length;i++){
             if (tag.equals(TagConstats.tagList[i]))
-                data.set_tagID(TagConstats.tagImage[i]);
+                data.setTagId(TagConstats.tagImage[i]);
         }
 
         mDataArrays.add(data);

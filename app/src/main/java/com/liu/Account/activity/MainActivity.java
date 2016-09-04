@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
@@ -34,8 +35,10 @@ import com.liu.Account.Constants.Constants;
 import com.liu.Account.Constants.MethodConstant;
 import com.liu.Account.R;
 import com.liu.Account.application.MyApplication;
+import com.liu.Account.commonUtils.DateUtil;
 import com.liu.Account.commonUtils.LogUtil;
 import com.liu.Account.commonUtils.ToastUtil;
+import com.liu.Account.database.Bill;
 import com.liu.Account.fragment.FragmentFactory;
 import com.liu.Account.initUtils.DeviceInformation;
 import com.liu.Account.initUtils.StatusBarUtil;
@@ -47,6 +50,7 @@ import com.liu.Account.network.beans.JsonReceive;
 import com.liu.Account.network.beans.ResponseHook;
 import com.liu.Account.network.beans.ResponseHookDeal;
 import com.liu.Account.utils.BitmapUtil;
+import com.liu.Account.utils.DatabaseUtil;
 import com.liu.Account.utils.HttpUtil;
 import com.liu.Account.utils.UserSettingUtil;
 import com.umeng.analytics.MobclickAgent;
@@ -58,6 +62,9 @@ import com.zhy.autolayout.AutoLayoutActivity;
 
 import org.json.JSONException;
 
+import java.io.File;
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -121,8 +128,9 @@ public class MainActivity extends AutoLayoutActivity
         Init.autoUpdateData(context);
         Init.toLoginAgain(context);
 
-    }
 
+
+    }
 
     @Override
     protected void onStart() {
@@ -134,6 +142,8 @@ public class MainActivity extends AutoLayoutActivity
         BmobUsers bmobUsers=BmobUser.getCurrentUser(context,BmobUsers.class);
         if (bmobUsers!=null)
             setNameAndPic();
+
+
 
     }
     private void setNameAndPic() {

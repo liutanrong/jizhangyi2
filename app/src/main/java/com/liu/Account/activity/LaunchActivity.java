@@ -1,11 +1,15 @@
 package com.liu.Account.activity;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.WindowManager;
 
@@ -14,7 +18,10 @@ import com.liu.Account.Constants.MethodConstant;
 import com.liu.Account.Constants.TagConstats;
 import com.liu.Account.R;
 import com.liu.Account.commonUtils.AppUtil;
+import com.liu.Account.commonUtils.DateUtil;
+import com.liu.Account.commonUtils.LogUtil;
 import com.liu.Account.commonUtils.PrefsUtil;
+import com.liu.Account.database.Bill;
 import com.liu.Account.initUtils.Init;
 import com.liu.Account.module.Hook.DefaultErrorHook;
 import com.liu.Account.module.dataobject.InstallationDo;
@@ -23,9 +30,15 @@ import com.liu.Account.network.beans.ResponseHook;
 import com.liu.Account.service.RepeatNetworkService;
 import com.liu.Account.utils.DatabaseUtil;
 import com.liu.Account.utils.HttpUtil;
+import com.liu.Account.utils.NumberUtil;
 import com.liu.Account.utils.UserSettingUtil;
+import com.orm.SugarContext;
+import com.orm.dsl.NotNull;
 import com.umeng.analytics.MobclickAgent;
 
+import java.io.File;
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 import me.zhanghai.android.patternlock.ConfirmPatternActivity;
@@ -68,12 +81,16 @@ public class LaunchActivity extends ConfirmPatternActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 
+
+
         context=LaunchActivity.this;
         Init.Bmob(context);//初始化bmob
         Init.DbName(context);//获得数据库名称，为手机imei号
         Init.savePath();
         Init.Umeng(context);
         initDB();
+
+        SugarContext.init(context);
 
         //默认Tag
         PrefsUtil dddd=new PrefsUtil(context,Constants.DefaultTag,Context.MODE_PRIVATE);
@@ -100,32 +117,82 @@ public class LaunchActivity extends ConfirmPatternActivity {
     @Override
     protected void onStart() {
         super.onStart();
+
+        updateDb();
         Intent intent=new Intent(context, RepeatNetworkService.class);
         context.startService(intent);
     }
 
     private void initDB() {
 
-        String CREATE_CLASS = "Create Table If Not Exists "+ Constants.tableName+" ("
-                +Constants.column[0]+" integer primary key,"
-                +Constants.column[1]+" String,"
-                +Constants.column[2]+" String,"
-                +Constants.column[3]+" String,"
-                +Constants.column[4]+" String UNIQUE,"
-                +Constants.column[5]+" String,"
-                +Constants.column[6]+" String,"
-                +Constants.column[7]+" String,"
-                +Constants.column[8]+" String,"
-                +Constants.column[9]+" String,"
-                +Constants.column[10]+" String )";
+    }
+    /**
+     * 更新数据库
+     *
+     */
+    private void updateDb() {
+        ProgressDialog progDialog=new ProgressDialog(context);
 
-        db = new DatabaseUtil(context, Constants.DBNAME, 1);
-        try {
-            db.renameTable("date", Constants.tableName);
-        }catch (Exception e){
-            e.printStackTrace();
-            db.creatTables(CREATE_CLASS);
+        File file=context.getDatabasePath(Constants.DBNAME);
+        if (!file.exists()){
+            LogUtil.e("old database not exists");
+            return;
         }
+
+        try {
+            progDialog.setTitle("正在更新数据");
+            progDialog.setMessage("请稍候...");
+            progDialog.show();
+            DatabaseUtil databaseUtil=new DatabaseUtil(context,Constants.DBNAME,1);
+            Cursor cursor=databaseUtil.queryCursor("select * from "+Constants.tableName, null);
+            LogUtil.i("账单总数" + cursor.getCount());
+            while (cursor.moveToNext()) {
+                //遍历
+                try {
+                    String remark = cursor.getString(cursor.getColumnIndex("remark"));
+                    String date = cursor.getString(cursor.getColumnIndex("date"));
+                    String unixtime = cursor.getString(cursor.getColumnIndex("unixTime"));
+                    String spendMoney = cursor.getString(cursor.getColumnIndex("spendMoney"));
+                    String moneyType=cursor.getString(cursor.getColumnIndex("moneyType"));
+                    String creatTime=cursor.getString(cursor.getColumnIndex("creatTime"));
+                    String tag=cursor.getString(cursor.getColumnIndex("Tag"));
+                    Integer id=cursor.getInt(cursor.getColumnIndex("_Id"));
+
+                    Bill bill=new Bill();
+                    bill.setId(new Long(id));
+                    bill.setRemark(remark);
+                    bill.setSpendMoney(new BigDecimal(spendMoney));
+                    bill.setIsDelete(false);
+                    Long createDateTimeStamp= DateUtil.getMilliseconds(creatTime,DateUtil.dateFormatYMDHMD);
+                    bill.setGmtCreate(new Date(createDateTimeStamp));
+                    bill.setGmtModified(new Date(createDateTimeStamp));
+                    bill.setHappenTime(new Date(Long.valueOf(unixtime)));
+                    bill.setTag(tag);
+                    bill.setInstallationId(UserSettingUtil.getInstallationId(context));
+                    bill.setUserId(UserSettingUtil.getUserId(context));
+                    int type=2;
+                    if (moneyType.equals("支出")) type=1;
+                    bill.setMoneyType(type);
+                    bill.save();
+                } catch (Exception e) {
+                    LogUtil.i(e.toString());
+                }
+
+            }
+            if (file.exists()){
+                boolean f=false;
+                boolean t=false;
+                while (!f){
+                    f=file.renameTo(new File(file.getPath()+"_bak"));
+                }
+                while (!t){
+                    t=file.delete();
+                }
+            }
+        }catch (Exception e){
+            LogUtil.e("database table not exists");
+        }
+        progDialog.dismiss();
     }
 
 
