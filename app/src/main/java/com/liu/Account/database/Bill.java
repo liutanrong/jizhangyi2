@@ -3,6 +3,7 @@ package com.liu.Account.database;
 
 import com.orm.SugarRecord;
 import com.orm.dsl.NotNull;
+import com.orm.dsl.Unique;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -17,6 +18,10 @@ public class Bill extends SugarRecord {
 
     private Long userId;
     private Long installationId;
+
+    @NotNull
+    @Unique
+    private String uniqueFlag;
     @NotNull
     private BigDecimal spendMoney;
     private String remark;
@@ -37,13 +42,12 @@ public class Bill extends SugarRecord {
     public Bill() {
     }
 
-    public Bill(Integer moneyType, BigDecimal spendMoney, String tag, Boolean isDelete, Date happenTime, Date gmtCreate) {
-        this.moneyType = moneyType;
-        this.spendMoney = spendMoney;
-        this.tag = tag;
-        this.isDelete = isDelete;
-        this.happenTime = happenTime;
-        this.gmtCreate = gmtCreate;
+    public String getUniqueFlag() {
+        return uniqueFlag;
+    }
+
+    public void setUniqueFlag(String uniqueFlag) {
+        this.uniqueFlag = uniqueFlag;
     }
 
     public Long getUserId() {

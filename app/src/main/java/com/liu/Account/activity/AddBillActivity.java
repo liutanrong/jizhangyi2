@@ -295,6 +295,8 @@ public class AddBillActivity extends AutoLayoutActivity {
         bill.setInstallationId(UserSettingUtil.getInstallationId(context));
         bill.setUserId(UserSettingUtil.getUserId(context));
         bill.setMoneyType(data.getType());
+        String uniqueFlag=bill.getInstallationId()+"_"+DateUtil.getStringByFormat(bill.getGmtCreate(),"yyyy_MM_dd_HH_mm_ss");
+        bill.setUniqueFlag(uniqueFlag);
 
         bill.save();
 

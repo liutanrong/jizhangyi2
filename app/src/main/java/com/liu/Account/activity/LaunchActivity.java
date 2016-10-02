@@ -161,15 +161,28 @@ public class LaunchActivity extends ConfirmPatternActivity {
                     Bill bill=new Bill();
                     bill.setId(new Long(id));
                     bill.setRemark(remark);
-                    bill.setSpendMoney(new BigDecimal(spendMoney));
+                    java.text.DecimalFormat   df   =new   java.text.DecimalFormat("#.00");
+                    bill.setSpendMoney(new BigDecimal(df.format(Double.valueOf(spendMoney))));
                     bill.setIsDelete(false);
                     Long createDateTimeStamp= DateUtil.getMilliseconds(creatTime,DateUtil.dateFormatYMDHMD);
+                    if (createDateTimeStamp==null||createDateTimeStamp==0){
+                        createDateTimeStamp=915123661000L;
+                    }
                     bill.setGmtCreate(new Date(createDateTimeStamp));
                     bill.setGmtModified(new Date(createDateTimeStamp));
                     bill.setHappenTime(new Date(Long.valueOf(unixtime)));
                     bill.setTag(tag);
                     bill.setInstallationId(UserSettingUtil.getInstallationId(context));
                     bill.setUserId(UserSettingUtil.getUserId(context));
+                    String uniqueFlag="";
+                    if (bill.getGmtCreate().getTime()!=0){
+                        uniqueFlag=bill.getInstallationId()+"_"+DateUtil.getStringByFormat(bill.getGmtCreate(),"yyyy_MM_dd_HH_mm_ss");
+
+                    }else {
+                        uniqueFlag=bill.getInstallationId()+"_"+DateUtil.getStringByFormat(bill.getHappenTime(),"yyyy_MM_dd_HH_mm_ss");
+                    }
+
+                    bill.setUniqueFlag(uniqueFlag);
                     int type=2;
                     if (moneyType.equals("支出")) type=1;
                     bill.setMoneyType(type);

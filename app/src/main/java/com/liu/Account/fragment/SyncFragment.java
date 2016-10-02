@@ -17,8 +17,10 @@ import android.widget.TextView;
 import com.liu.Account.BmobRespose.BmobUsers;
 import com.liu.Account.R;
 import com.liu.Account.activity.LoginActivity;
+import com.liu.Account.commonUtils.LogUtil;
 import com.liu.Account.commonUtils.ToastUtil;
 import com.liu.Account.BmobNetwork.BmobNetworkUtils;
+import com.liu.Account.network.BackupManager;
 import com.umeng.analytics.MobclickAgent;
 
 import cn.bmob.v3.BmobUser;
@@ -73,8 +75,10 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
             case R.id.sync_update:{
                 ////  16-1-26 上传数据
                 if (user!=null){
-                    BmobNetworkUtils d=new BmobNetworkUtils(activity);
-                    d.upDatesToBmob(activity,true);
+                    BackupManager.uploadData();
+//                    BmobNetworkUtils d=new BmobNetworkUtils(activity);
+//                    d.upDatesToBmob(activity,true);
+
                 }else {
                     Dialog dialog =new AlertDialog.Builder(activity)
                             .setTitle("需要登陆")
