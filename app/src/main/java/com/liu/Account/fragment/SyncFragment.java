@@ -96,13 +96,7 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
             }case R.id.sync_downland:{
                 ////  16-1-26 下载数据
                 if (user!=null){
-                    BmobUsers bmobUser=BmobUsers.getCurrentUser(activity,BmobUsers.class);
-                    if (bmobUser.getFileName()!=null){
-                        BmobNetworkUtils dd=new BmobNetworkUtils(activity);
-                        dd.getDatasFromBmob(activity, bmobUser.getFileName());
-                    }else {
-                        ToastUtil.showShort(activity, "您还没有上传数据呢");
-                    }
+                    BackupManager.downloadData(activity);
                 }else {
                     Dialog dialog =new AlertDialog.Builder(activity)
                             .setTitle("需要登陆")

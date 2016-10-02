@@ -10,13 +10,20 @@ import com.liu.Account.commonUtils.LogUtil;
 import com.liu.Account.commonUtils.PrefsUtil;
 import com.liu.Account.database.Bill;
 import com.liu.Account.module.Hook.DefaultErrorHook;
+import com.liu.Account.module.request.GetBillRequest;
+import com.liu.Account.module.response.GetBillResponse;
 import com.liu.Account.network.beans.JsonReceive;
 import com.liu.Account.network.beans.ResponseHook;
+import com.liu.Account.network.beans.ResponseHookDeal;
 import com.liu.Account.utils.HttpUtil;
+import com.liu.Account.utils.UserSettingUtil;
+import com.orm.SugarRecord;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by tanrong on 16/9/23.
@@ -74,8 +81,32 @@ public class BackupManager {
     }
 
 
-    public static boolean downloadData(){
-        boolean flag=true;
-        return flag;
+    public static void downloadData(Context context){
+        GetBillRequest request=new GetBillRequest();
+        request.setUserId(UserSettingUtil.getUserId(context));
+        Set<String> havedBill=new HashSet<>();
+        List<Bill> billList=Bill.listAll(Bill.class);
+        for (Bill bill :
+                billList) {
+            havedBill.add(bill.getUniqueFlag());
+        }
+        request.setHavedBill(havedBill);
+        HttpUtil.post(MethodConstant.BILL_LIST_DOWNLOAD, request, new ResponseHook() {
+            @Override
+            public void deal(Context context, JsonReceive receive) {
+                LogUtil.i("---账单下载完成--");
+                JSONObject respo=JSON.parseObject(JSON.toJSONString(receive.getResponse()));
+                GetBillResponse response=JSON.parseObject(JSON.toJSONString(respo.getJSONObject("response"))
+                        ,GetBillResponse.class);
+                if (response.getHasError()!=0){
+                    List<Bill> billList=response.getData();
+                    for (Bill b :
+                            billList) {
+                        b.save();
+                    }
+                }
+
+            }
+        },new DefaultErrorHook(),GetBillResponse.class);
     }
 }

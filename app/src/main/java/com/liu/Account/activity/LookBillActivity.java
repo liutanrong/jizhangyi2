@@ -146,6 +146,8 @@ public class LookBillActivity extends AutoLayoutActivity {
                 .setPositiveButton(R.string.deleteBillPosBtm, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+
+
                         int i = db.delete(Constants.tableName, "unixTime=?", new String[]{unixTime});
                         LogUtil.i("删除影响的记录数:" + i);
                         if (i == 0) {
@@ -153,16 +155,7 @@ public class LookBillActivity extends AutoLayoutActivity {
                         } else {
                             ToastUtil.showShort(context, getString(R.string.deleteBillSuccess));
                         }
-                        //// 16-1-25 从云端删除 (上传一次)
-                        Thread thread=new Thread() {
-                            @Override
-                            public void run() {
-                                super.run();
-                                BmobNetworkUtils d = new BmobNetworkUtils(context);
-                                d.upDatesToBmob(context,false);
-                            }
-                        };
-                        thread.run();
+
 
                         finish();
                     }
