@@ -13,7 +13,6 @@ import com.liu.Account.module.Hook.DefaultErrorHook;
 import com.liu.Account.network.beans.JsonReceive;
 import com.liu.Account.network.beans.ResponseHook;
 import com.liu.Account.utils.HttpUtil;
-import com.liu.Account.view.emojicon.emoji.Objects;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,7 +23,7 @@ import java.util.List;
  */
 public class BackupManager {
 
-    public static boolean uploadData(Context context){
+    public static void uploadData(Context context){
         boolean flag=true;
         List<Bill> billList=Bill.listAll(Bill.class);
         List<Bill> billListInsert=new ArrayList<>();
@@ -72,7 +71,6 @@ public class BackupManager {
                 }
             }
         },new DefaultErrorHook());
-        return flag;
     }
 
 

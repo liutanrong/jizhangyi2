@@ -17,5 +17,5 @@ public class MethodConstant {
     public static final String UPLOAD_FILE="file/upload";
     public static final String UPLOAD_MORE_FILE="more_upload";
 
-    public static final String BILL_LIST_UPDATE="billData/insertList";
+    public static final String BILL_LIST_UPDATE="billData/uploadBill";
 }
