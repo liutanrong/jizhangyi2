@@ -18,6 +18,7 @@ public class Constants {
     public static final String PatternLock="patternLock";
 
     public static final String USER_SETTING_PRFIX="user_setting_sp";
+    public static final String UPDATE_TIME_SP="update_time_sp";
     public static final String ERROR_NETWORK_SP="error_network_sp";
 
 }
