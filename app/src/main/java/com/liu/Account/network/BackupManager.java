@@ -3,6 +3,7 @@ package com.liu.Account.network;
 import android.content.Context;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.liu.Account.Constants.Constants;
 import com.liu.Account.Constants.MethodConstant;
@@ -95,11 +96,21 @@ public class BackupManager {
             @Override
             public void deal(Context context, JsonReceive receive) {
                 LogUtil.i("---账单下载完成--");
-                JSONObject respo=JSON.parseObject(JSON.toJSONString(receive.getResponse()));
-                GetBillResponse response=JSON.parseObject(JSON.toJSONString(respo.getJSONObject("response"))
-                        ,GetBillResponse.class);
-                if (response.getHasError()!=0){
-                    List<Bill> billList=response.getData();
+                JSONObject jsonObject=new JSONObject(JSON.parseObject(JSON.toJSONString(receive)));
+                JSONArray jsonArray=JSON.parseArray(jsonObject.getString("data"));
+                for (int i = 0; i < jsonArray.size(); i++) {
+                    JSONObject jsonObject1=jsonArray.getJSONObject(i);
+
+                    LogUtil.i(jsonObject1.toString());
+                    Bill bill=JSON.parseObject(JSON.toJSONString(jsonObject1),Bill.class);
+                }
+
+
+                String resStr=JSON.toJSONString(receive.getResponse());
+                LogUtil.i(resStr);
+                GetBillResponse response=JSON.parseObject(resStr,GetBillResponse.class);
+                if (response.getExeSuccess()==1){
+                    List<Bill> billList=response.getDataBill();
                     for (Bill b :
                             billList) {
                         b.save();

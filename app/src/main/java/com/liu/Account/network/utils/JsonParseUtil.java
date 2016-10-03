@@ -3,6 +3,7 @@ package com.liu.Account.network.utils;
 import android.content.Context;
 import android.util.Log;
 
+import com.alibaba.fastjson.JSON;
 import com.liu.Account.network.beans.JsonPost;
 import com.liu.Account.network.beans.JsonReceive;
 
@@ -84,8 +85,7 @@ public class JsonParseUtil {
 			Object response = null;
 			if(responses.length > 0){
 				Log.i("NetworkManager","11");
-				 response = jsonParseResponse(
-							(JSONObject) json.get("response"), responses);
+				response= JSON.toJSON(json.get("response"));
 			}else{
 				Log.i("NetworkManager","12");
 				response=json.get("response");
@@ -96,76 +96,6 @@ public class JsonParseUtil {
 			LogUtil.log(LogType.ERROR, JsonParseUtil.class, "响应的json串解析错误");
 		}
 		return receive;
-	}
-
-	/**
-	 * 将JsonObject递归放入response中
-	 * 
-	 * @param json
-	 *            要解析的JSONObject
-	 * @param responses
-	 *            响应的实体类class数组
-	 * @return 解析好的response
-	 */
-	public static Object jsonParseResponse(JSONObject json, Class<?>... responses) {
-		Object obj = null;
-		if(responses.length > 1){
-			try {
-				obj = responses[0].newInstance();
-				for(Field field : responses[0].getDeclaredFields()){
-					if(field.getType().isAssignableFrom(ArrayList.class)){
-						// 如果是数组, 递归解析
-						JSONArray array = json.getJSONArray(field.getName());
-						Object[] objects = (Object[]) Array.newInstance(responses[1], array.length());
-						for(int i=0; i<objects.length; i++){
-							objects[i] = jsonParseResponse(array.getJSONObject(i), Arrays.copyOfRange(responses, 1, responses.length));
-						}
-						List<?> list = asList(objects);
-						Method m = responses[0].getMethod(ReflectUtil.setterNameFromField(field), list.getClass());
-						m.invoke(obj, list);
-					}else{
-						// 如果不是数组，直接调用set方法
-						Method m = responses[0].getMethod(ReflectUtil.setterNameFromField(field), field.getType());
-						m.invoke(obj, json.get(field.getName()));
-					}
-				}
-			} catch (InstantiationException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			} catch (JSONException e) {
-				e.printStackTrace();
-			} catch (NoSuchMethodException e) {
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				e.printStackTrace();
-			}
-		}else{
-			try {
-				System.out.println(json.toString());
-				obj = objectMapper.readValue(json.toString(), responses[0]);
-			} catch (JsonParseException e) {
-				e.printStackTrace();
-			} catch (JsonMappingException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return obj;
-	}
-	
-	/**
-	 * 将对象数组转化成对应的ArrayList
-	 * @param a 对象数组
-	 * @return 转化后的ArrayList
-	 */
-	public static <T> List<T> asList(T... a) {
-		List<T> list = new ArrayList<T>();
-		Collections.addAll(list, a);
-		return list;
 	}
 
 }
