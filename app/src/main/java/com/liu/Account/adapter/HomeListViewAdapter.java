@@ -76,9 +76,9 @@ public class HomeListViewAdapter extends BaseAdapter {
         holder.spendMoneyInList.setText(money);
         String moneyType="";
         if (entity.getMoneyType()==null||entity.getMoneyType()== Bill.MONEY_TYPE_IN){
-            moneyType=context.getString(R.string.MoneyIn);
+            moneyType=context.getString(R.string.MoneyInShow);
         }else if (entity.getMoneyType()==Bill.MONEY_TYPE_OUT){
-            moneyType=context.getString(R.string.MoneyOut);
+            moneyType=context.getString(R.string.MoneyOutShow);
         }
         holder.moneyType.setText(moneyType);
         holder.creatTime.setText(entity.getGmtCreate().getTime()+"");

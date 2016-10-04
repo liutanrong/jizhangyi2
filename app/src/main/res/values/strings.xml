@@ -23,6 +23,8 @@
     <!--通用-->
     <string name="MoneyIn">收入</string>
     <string name="MoneyOut">支出</string>
+    <string name="MoneyInShow">+</string>
+    <string name="MoneyOutShow">-</string>
     <string name="homeMoneyDefault">---</string>
 
     <!--添加账单-->

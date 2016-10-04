@@ -151,9 +151,9 @@ public class AllBillListAdapter extends BaseExpandableListAdapter {
                     holderChild.spendMoneyInList.setText(money);
                     String moneyType="";
                     if (entity.getMoneyType()==null||entity.getMoneyType()== Bill.MONEY_TYPE_IN){
-                        moneyType=context.getString(R.string.MoneyIn);
+                        moneyType=context.getString(R.string.MoneyInShow);
                     }else if (entity.getMoneyType()==Bill.MONEY_TYPE_OUT){
-                        moneyType=context.getString(R.string.MoneyOut);
+                        moneyType=context.getString(R.string.MoneyOutShow);
                     }
                     holderChild.moneyType.setText(moneyType);
                     holderChild.creatTime.setText(entity.getGmtCreate().getTime()+"");
