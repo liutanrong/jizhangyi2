@@ -32,7 +32,7 @@ public class OkHttpNetworkManager {
                 .execute(new StringCallback() {
                     @Override
                     public void onError(Call call, Exception e, int id) {
-                        Log.d("[返回错误"+method+"]",e.getMessage());
+                        Log.d("[返回错误"+method+"]","");
                     }
 
                     @Override

@@ -36,10 +36,14 @@ public class BackupManager {
         List<Bill> billListInsert=new ArrayList<>();
         List<Bill> billListUpdate=new ArrayList<>();
         PrefsUtil prefsUtil=new PrefsUtil(context, Constants.UPDATE_TIME_SP,Context.MODE_PRIVATE);
+        Long uploadTime=prefsUtil.getLong("uploadTime",0);
+        Long insertTime=prefsUtil.getLong("insertTime",0);
         for (Bill bill:billList) {
-            Long uploadTime=prefsUtil.getLong("uploadTime",0);
-            Long insertTime=prefsUtil.getLong("insertTime",0);
             if (bill==null)continue;
+            Long userId=UserSettingUtil.getUserId(context);
+            if (userId==null)continue;
+            bill.setUserId(userId);
+
             if (bill.getGmtCreate()!=null&&bill.getGmtCreate().getTime()>insertTime){
                 billListInsert.add(bill);
             }else if (bill.getGmtModified()!=null&&bill.getGmtModified().getTime()>=uploadTime){

@@ -8,8 +8,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
-import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.WindowManager;
 
@@ -30,10 +28,8 @@ import com.liu.Account.network.beans.ResponseHook;
 import com.liu.Account.service.RepeatNetworkService;
 import com.liu.Account.utils.DatabaseUtil;
 import com.liu.Account.utils.HttpUtil;
-import com.liu.Account.utils.NumberUtil;
 import com.liu.Account.utils.UserSettingUtil;
 import com.orm.SugarContext;
-import com.orm.dsl.NotNull;
 import com.umeng.analytics.MobclickAgent;
 
 import java.io.File;
@@ -161,17 +157,23 @@ public class LaunchActivity extends ConfirmPatternActivity {
                     Integer id=cursor.getInt(cursor.getColumnIndex("_Id"));
 
                     Bill bill=new Bill();
-                    bill.setId(new Long(id));
                     bill.setRemark(remark);
                     java.text.DecimalFormat   df   =new   java.text.DecimalFormat("#.00");
                     bill.setSpendMoney(new BigDecimal(df.format(Double.valueOf(spendMoney))));
                     bill.setIsDelete(false);
-                    Long createDateTimeStamp= DateUtil.getMilliseconds(creatTime,DateUtil.dateFormatYMDHMD);
-                    if (createDateTimeStamp==null||createDateTimeStamp==0){
-                        createDateTimeStamp=915123661000L;
+                    Long createDateTimeStamp=0L;
+                    if (creatTime.contains("--"))
+                        createDateTimeStamp=Long.valueOf(unixtime);
+                    else
+                        createDateTimeStamp= DateUtil.getMilliseconds(creatTime,DateUtil.dateFormatYMDHMD);
+
+                    if (createDateTimeStamp==0){
+                        createDateTimeStamp=978278500000L;
                     }
-                    bill.setGmtCreate(new Date(createDateTimeStamp));
-                    bill.setGmtModified(new Date(createDateTimeStamp));
+                    int rad=(int)(Math.random()*10000);
+
+                    bill.setGmtCreate(new Date(createDateTimeStamp-5000+rad));
+                    bill.setGmtModified(new Date(createDateTimeStamp-5001+rad));
                     bill.setHappenTime(new Date(Long.valueOf(unixtime)));
                     bill.setTag(tag);
                     bill.setInstallationId(UserSettingUtil.getInstallationId(context));
@@ -194,7 +196,10 @@ public class LaunchActivity extends ConfirmPatternActivity {
                 }
 
             }
-            Bill.saveInTx(billList);
+            for (Bill bill:billList){
+                bill.save();
+            }
+            LogUtil.i("当前数据库数目:"+Bill.count(Bill.class));
             if (file.exists()){
                 boolean f=false;
                 boolean t=false;
