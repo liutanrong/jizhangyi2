@@ -3,7 +3,6 @@ package com.liu.Account.network;
 import android.content.Context;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.liu.Account.Constants.Constants;
 import com.liu.Account.Constants.MethodConstant;
@@ -14,11 +13,10 @@ import com.liu.Account.module.Hook.DefaultErrorHook;
 import com.liu.Account.module.request.GetBillRequest;
 import com.liu.Account.module.response.GetBillResponse;
 import com.liu.Account.network.beans.JsonReceive;
+import com.liu.Account.network.beans.OkHook;
 import com.liu.Account.network.beans.ResponseHook;
-import com.liu.Account.network.beans.ResponseHookDeal;
 import com.liu.Account.utils.HttpUtil;
 import com.liu.Account.utils.UserSettingUtil;
-import com.orm.SugarRecord;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -40,9 +38,10 @@ public class BackupManager {
         for (Bill bill:billList) {
             Long uploadTime=prefsUtil.getLong("uploadTime",0);
             Long insertTime=prefsUtil.getLong("insertTime",0);
-            if (bill.getGmtCreate().getTime()>insertTime){
+            if (bill==null)continue;
+            if (bill.getGmtCreate()!=null&&bill.getGmtCreate().getTime()>insertTime){
                 billListInsert.add(bill);
-            }else if (bill.getGmtModified().getTime()>=uploadTime){
+            }else if (bill.getGmtModified()!=null&&bill.getGmtModified().getTime()>=uploadTime){
                 billListUpdate.add(bill);
             }
         }
@@ -57,7 +56,7 @@ public class BackupManager {
                 LogUtil.i(JSON.toJSONString(receive));
                 PrefsUtil prefsUtil=new PrefsUtil(context, Constants.UPDATE_TIME_SP,Context.MODE_PRIVATE);
                 Object ob=receive.getResponse();
-                Integer code=Integer.valueOf((String)ob);
+                Integer code= (Integer) receive.getResponse();
                 switch (code){
                     case 1:{
                         //全部成功
@@ -92,32 +91,24 @@ public class BackupManager {
             havedBill.add(bill.getUniqueFlag());
         }
         request.setHavedBill(havedBill);
-        HttpUtil.post(MethodConstant.BILL_LIST_DOWNLOAD, request, new ResponseHook() {
+        OkHttpNetworkManager.post(MethodConstant.BILL_LIST_DOWNLOAD, request, context, new OkHook() {
             @Override
-            public void deal(Context context, JsonReceive receive) {
-                LogUtil.i("---账单下载完成--");
-                JSONObject jsonObject=new JSONObject(JSON.parseObject(JSON.toJSONString(receive)));
-                JSONArray jsonArray=JSON.parseArray(jsonObject.getString("data"));
-                for (int i = 0; i < jsonArray.size(); i++) {
-                    JSONObject jsonObject1=jsonArray.getJSONObject(i);
-
-                    LogUtil.i(jsonObject1.toString());
-                    Bill bill=JSON.parseObject(JSON.toJSONString(jsonObject1),Bill.class);
-                }
-
-
-                String resStr=JSON.toJSONString(receive.getResponse());
-                LogUtil.i(resStr);
-                GetBillResponse response=JSON.parseObject(resStr,GetBillResponse.class);
-                if (response.getExeSuccess()==1){
-                    List<Bill> billList=response.getDataBill();
-                    for (Bill b :
-                            billList) {
-                        b.save();
+            public void deal(Context context, String response) {
+                LogUtil.i(response);
+                GetBillResponse response1=JSON.parseObject(response,GetBillResponse.class);
+                if (response1==null){
+                    LogUtil.i("null");
+                }else {
+                    if (response1.getExeSuccess()==1){
+                        List<Bill> billList=response1.getDataBill();
+                        for (Bill b :
+                                billList) {
+                            LogUtil.i(JSON.toJSONString(b));
+                            b.save();
+                        }
                     }
                 }
-
             }
-        },new DefaultErrorHook(),GetBillResponse.class);
+        });
     }
 }

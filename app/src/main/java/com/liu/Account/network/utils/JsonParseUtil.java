@@ -85,7 +85,7 @@ public class JsonParseUtil {
 			Object response = null;
 			if(responses.length > 0){
 				Log.i("NetworkManager","11");
-				response= JSON.toJSON(json.get("response"));
+				response= json.get("response");
 			}else{
 				Log.i("NetworkManager","12");
 				response=json.get("response");

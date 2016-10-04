@@ -66,6 +66,8 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
         }else {
             lastUpdateTime.setText("---------");
         }
+
+        BackupManager.downloadData(activity);
     }
 
     @Override

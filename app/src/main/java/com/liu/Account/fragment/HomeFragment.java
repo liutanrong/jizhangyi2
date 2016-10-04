@@ -98,7 +98,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Adapt
         date.setText(currentYear + "." + currentMonth);
 
 
-        List<Bill> billList= Bill.find(Bill.class,"is_Delete=? and happen_time>=? and happen_time<=?",new String[]{"0",DateUtil.getFirstDayOfMonth()+"",calendar.getTime().getTime()+""},null,"HAPPEN_TIME desc",null);
+        List<Bill> billList= Bill.find(Bill.class,"is_Delete=? and happen_time>=?",new String[]{"0",DateUtil.getFirstDayOfMonth()+""},null,"HAPPEN_TIME desc",null);
         LogUtil.i("首页数据");
         LogUtil.i(JSON.toJSONString(billList));
         initArray(billList);

@@ -38,6 +38,7 @@ import com.umeng.analytics.MobclickAgent;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -146,6 +147,7 @@ public class LaunchActivity extends ConfirmPatternActivity {
             DatabaseUtil databaseUtil=new DatabaseUtil(context,Constants.DBNAME,1);
             Cursor cursor=databaseUtil.queryCursor("select * from "+Constants.tableName, null);
             LogUtil.i("账单总数" + cursor.getCount());
+            List<Bill> billList=new ArrayList<>();
             while (cursor.moveToNext()) {
                 //遍历
                 try {
@@ -186,12 +188,13 @@ public class LaunchActivity extends ConfirmPatternActivity {
                     int type=2;
                     if (moneyType.equals("支出")) type=1;
                     bill.setMoneyType(type);
-                    bill.save();
+                    billList.add(bill);
                 } catch (Exception e) {
                     LogUtil.i(e.toString());
                 }
 
             }
+            Bill.saveInTx(billList);
             if (file.exists()){
                 boolean f=false;
                 boolean t=false;

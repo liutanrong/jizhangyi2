@@ -21,6 +21,7 @@ import com.liu.Account.R;
 import com.liu.Account.commonUtils.DateUtil;
 import com.liu.Account.commonUtils.LogUtil;
 import com.liu.Account.commonUtils.ToastUtil;
+import com.liu.Account.database.Bill;
 import com.liu.Account.initUtils.Init;
 import com.liu.Account.initUtils.StatusBarUtil;
 import com.liu.Account.utils.DatabaseUtil;
@@ -28,7 +29,9 @@ import com.liu.Account.utils.HttpUtil;
 import com.umeng.analytics.MobclickAgent;
 import com.zhy.autolayout.AutoLayoutActivity;
 
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import cn.bmob.v3.BmobUser;
@@ -146,15 +149,24 @@ public class LookBillActivity extends AutoLayoutActivity {
                 .setPositiveButton(R.string.deleteBillPosBtm, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-
-
-                        int i = db.delete(Constants.tableName, "unixTime=?", new String[]{unixTime});
-                        LogUtil.i("删除影响的记录数:" + i);
-                        if (i == 0) {
-                            ToastUtil.showShort(context, getString(R.string.deleteBillFailed));
-                        } else {
-                            ToastUtil.showShort(context, getString(R.string.deleteBillSuccess));
+                        List<Bill> billList=Bill.find(Bill.class,"happen_time=?", unixTime);
+                        LogUtil.i("将要删除的账单数:"+billList);
+                        for (Bill bill:billList){
+                            if (bill!=null){
+                                bill.setIsDelete(true);
+                                bill.setDeleteTime(new Date());
+                                bill.save();
+                            }
                         }
+
+                        ToastUtil.showShort(context, getString(R.string.deleteBillSuccess));
+//                        int i = db.delete(Constants.tableName, "unixTime=?", new String[]{unixTime});
+//                        LogUtil.i("删除影响的记录数:" + i);
+//                        if (i == 0) {
+//                            ToastUtil.showShort(context, getString(R.string.deleteBillFailed));
+//                        } else {
+//                            ToastUtil.showShort(context, getString(R.string.deleteBillSuccess));
+//                        }
 
 
                         finish();
