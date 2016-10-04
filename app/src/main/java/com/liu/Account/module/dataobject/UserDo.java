@@ -1,5 +1,7 @@
 package com.liu.Account.module.dataobject;
 
+import java.util.Date;
+
 /**
  * Created by tanrong on 16/7/4.
  */
@@ -11,6 +13,8 @@ public class UserDo {
     private Character emailVerified;
     private String password;
     private String nickName;
+    private Date lastInsertTime;
+    private Date lastModifiedTime;
 
     private String databasePath;
     private String imageHeadPath;
@@ -85,5 +89,21 @@ public class UserDo {
 
     public void setNickName(String nickName) {
         this.nickName = nickName;
+    }
+
+    public Date getLastInsertTime() {
+        return lastInsertTime;
+    }
+
+    public void setLastInsertTime(Date lastInsertTime) {
+        this.lastInsertTime = lastInsertTime;
+    }
+
+    public Date getLastModifiedTime() {
+        return lastModifiedTime;
+    }
+
+    public void setLastModifiedTime(Date lastModifiedTime) {
+        this.lastModifiedTime = lastModifiedTime;
     }
 }

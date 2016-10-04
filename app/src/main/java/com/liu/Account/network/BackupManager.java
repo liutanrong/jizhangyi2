@@ -17,6 +17,7 @@ import com.liu.Account.network.beans.OkHook;
 import com.liu.Account.network.beans.ResponseHook;
 import com.liu.Account.utils.HttpUtil;
 import com.liu.Account.utils.UserSettingUtil;
+import com.orm.SugarRecord;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -29,7 +30,7 @@ import java.util.Set;
  */
 public class BackupManager {
 
-    public static void uploadData(Context context){
+    public static void uploadData(Context context,boolean isShow){
         boolean flag=true;
         List<Bill> billList=Bill.listAll(Bill.class);
         List<Bill> billListInsert=new ArrayList<>();
@@ -49,14 +50,13 @@ public class BackupManager {
         requestObject.put("insert",billListInsert);
         requestObject.put("update",billListUpdate);
         LogUtil.i("billSize:"+billList.size()+"  insertSize:"+billListInsert.size()+"  updateSize:"+billListUpdate.size());
-        HttpUtil.post(MethodConstant.BILL_LIST_UPDATE, requestObject, new ResponseHook() {
+        OkHttpNetworkManager.post(MethodConstant.BILL_LIST_UPDATE, requestObject, context, new OkHook() {
             @Override
-            public void deal(Context context, JsonReceive receive) {
+            public void deal(Context context, String responseStr) {
                 LogUtil.i("---账单上传完成--");
-                LogUtil.i(JSON.toJSONString(receive));
+                LogUtil.i(JSON.toJSONString(responseStr));
                 PrefsUtil prefsUtil=new PrefsUtil(context, Constants.UPDATE_TIME_SP,Context.MODE_PRIVATE);
-                Object ob=receive.getResponse();
-                Integer code= (Integer) receive.getResponse();
+                Integer code= Integer.valueOf(responseStr);
                 switch (code){
                     case 1:{
                         //全部成功
@@ -77,7 +77,7 @@ public class BackupManager {
                     }
                 }
             }
-        },new DefaultErrorHook());
+        });
     }
 
 
@@ -101,13 +101,14 @@ public class BackupManager {
                 }else {
                     if (response1.getExeSuccess()==1){
                         List<Bill> billList=response1.getDataBill();
-                        for (Bill b :
-                                billList) {
-                            LogUtil.i(JSON.toJSONString(b));
-                            b.save();
-                        }
+                        Bill.saveInTx(billList);
+                        PrefsUtil prefsUtil=new PrefsUtil(context, Constants.UPDATE_TIME_SP,Context.MODE_PRIVATE);
+
+                        prefsUtil.putLong("insertTime",response1.getLastInsertDate()+1);
+                        prefsUtil.putLong("uploadTime",response1.getLastUpdateDate()+1);
                     }
                 }
+
             }
         });
     }

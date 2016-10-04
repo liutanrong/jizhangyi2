@@ -67,7 +67,6 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
             lastUpdateTime.setText("---------");
         }
 
-        BackupManager.downloadData(activity);
     }
 
     @Override
@@ -77,7 +76,7 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
             case R.id.sync_update:{
                 ////  16-1-26 上传数据
                 if (user!=null){
-                    BackupManager.uploadData(activity);
+                    BackupManager.uploadData(activity,false);
 //                    BmobNetworkUtils d=new BmobNetworkUtils(activity);
 //                    d.upDatesToBmob(activity,true);
 

@@ -11,6 +11,24 @@ import java.util.List;
  */
 public class GetBillResponse  extends BaseResponse {
     private JSONArray data=new JSONArray();
+    private Long lastInsertDate=0L;
+    private Long lastUpdateDate=0L;
+
+    public Long getLastUpdateDate() {
+        return lastUpdateDate;
+    }
+
+    public void setLastUpdateDate(Long lastUpdateDate) {
+        this.lastUpdateDate = lastUpdateDate;
+    }
+
+    public Long getLastInsertDate() {
+        return lastInsertDate;
+    }
+
+    public void setLastInsertDate(Long lastInsertDate) {
+        this.lastInsertDate = lastInsertDate;
+    }
 
     public JSONArray getData() {
         return data;
