@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,13 +16,19 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.liu.Account.BmobRespose.BmobUsers;
+import com.liu.Account.Constants.Constants;
 import com.liu.Account.R;
 import com.liu.Account.activity.LoginActivity;
+import com.liu.Account.commonUtils.DateUtil;
 import com.liu.Account.commonUtils.LogUtil;
+import com.liu.Account.commonUtils.PrefsUtil;
 import com.liu.Account.commonUtils.ToastUtil;
 import com.liu.Account.BmobNetwork.BmobNetworkUtils;
 import com.liu.Account.network.BackupManager;
+import com.liu.Account.utils.UserSettingUtil;
 import com.umeng.analytics.MobclickAgent;
+
+import java.util.Date;
 
 import cn.bmob.v3.BmobUser;
 
@@ -33,8 +40,7 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
     View view;
     private Activity activity;
     private TextView lastUpdateTime;
-    private Button update;
-    private Button downland;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -48,8 +54,8 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
 
     private void initView() {
         lastUpdateTime= (TextView) view.findViewById(R.id.sync_lastUpdateTime);
-        update= (Button) view.findViewById(R.id.sync_update);
-        downland= (Button) view.findViewById(R.id.sync_downland);
+        Button update = (Button) view.findViewById(R.id.sync_update);
+        Button downland = (Button) view.findViewById(R.id.sync_downland);
         update.setOnClickListener(this);
         downland.setOnClickListener(this);
 
@@ -60,9 +66,13 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onStart() {
         super.onStart();
-        BmobUsers users=BmobUser.getCurrentUser(activity,BmobUsers.class);
-        if (users!=null&&users.getDBupdateDate()!=null){
-            lastUpdateTime.setText(users.getDBupdateDate());
+        Long userId= UserSettingUtil.getUserId(activity);
+        PrefsUtil prefsUtil=new PrefsUtil(activity, Constants.UPDATE_TIME_SP, Context.MODE_PRIVATE);
+        Long lastUpdateTim=prefsUtil.getLong("uploadTime");
+        Long lastInsertTim=prefsUtil.getLong("insertTime");
+        Long max=lastInsertTim<lastUpdateTim?lastUpdateTim:lastInsertTim;
+        if (userId!=null&&max!=0){
+            lastUpdateTime.setText(DateUtil.getStringByFormat(new Date(max),DateUtil.dateFormatYMDHM));
         }else {
             lastUpdateTime.setText("---------");
         }
