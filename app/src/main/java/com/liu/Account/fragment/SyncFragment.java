@@ -7,8 +7,11 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,10 +27,16 @@ import com.liu.Account.commonUtils.LogUtil;
 import com.liu.Account.commonUtils.PrefsUtil;
 import com.liu.Account.commonUtils.ToastUtil;
 import com.liu.Account.BmobNetwork.BmobNetworkUtils;
+import com.liu.Account.database.Bill;
 import com.liu.Account.network.BackupManager;
+import com.liu.Account.utils.CSVUtil;
 import com.liu.Account.utils.UserSettingUtil;
 import com.umeng.analytics.MobclickAgent;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Date;
 
 import cn.bmob.v3.BmobUser;
@@ -56,8 +65,12 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
         lastUpdateTime= (TextView) view.findViewById(R.id.sync_lastUpdateTime);
         Button update = (Button) view.findViewById(R.id.sync_update);
         Button downland = (Button) view.findViewById(R.id.sync_downland);
+        Button export= (Button) view.findViewById(R.id.sync_export);
+        Button import1= (Button) view.findViewById(R.id.sync_import);
         update.setOnClickListener(this);
         downland.setOnClickListener(this);
+        export.setOnClickListener(this);
+        import1.setOnClickListener(this);
 
 
     }
@@ -126,6 +139,16 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
 
                 break;
 
+            }case R.id.sync_export:{
+                Cursor cursor= Bill.getCursor(Bill.class,null,null,null,null,null);
+                String filePath= Constants.FileName+"jizhangyibackup"+DateUtil.getCurrentDate(DateUtil.dateFormatYMDHMS);
+                boolean flag=CSVUtil.ExportToCSV(cursor,filePath);
+                if (flag){
+                    ToastUtil.showShort(activity,"导出成功,文件在"+filePath);
+                }else {
+                    ToastUtil.showShort(activity,"导出失败");
+                }
+                break;
             }
         }
     }
@@ -137,4 +160,5 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
         super.onPause();
         MobclickAgent.onPageEnd("SyncFragment");
     }
+
 }
