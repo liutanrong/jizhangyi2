@@ -7,7 +7,7 @@ package com.liu.Account.model;
 public class AllBillFragmentData {
     private String dateTime;
     private String totalMoney;
-    private Integer moneyType; //1是收入 2是支出
+    private String moneyType; //1是收入 2是支出
 
     public String getDateTime() {
         return dateTime;
@@ -25,11 +25,11 @@ public class AllBillFragmentData {
         this.totalMoney = totalMoney;
     }
 
-    public Integer getMoneyType() {
+    public String getMoneyType() {
         return moneyType;
     }
 
-    public void setMoneyType(Integer moneyType) {
+    public void setMoneyType(String moneyType) {
         this.moneyType = moneyType;
     }
 }
