@@ -10,7 +10,6 @@ import java.util.Date;
  * Created by deonte on 16-1-24.
  */
 public class AddBillData {
-    private int year,month,dayOfMonth;
 
 
     private BigDecimal money;
@@ -23,50 +22,15 @@ public class AddBillData {
 
 
 
-
-    private boolean isSelectTime=false;
+    private Date happenDate;//账单发生时间
 
     public AddBillData(boolean init){
         if (init) {
-            Calendar calendar = Calendar.getInstance();
-            year= calendar.get(Calendar.YEAR);
-            month = calendar.get(Calendar.MONTH)+1;
-            dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
             tag= TagConstats.tagList[0];
         }
     }
 
-    public boolean getIsSelectTime() {
-        return isSelectTime;
-    }
 
-    public void setIsSelectTime(boolean selectTime) {
-        this.isSelectTime = selectTime;
-    }
-
-    public int getYear() {
-        return year;
-    }
-
-    public void setYear(int year) {
-        this.year = year;
-    }
-
-    public int getMonth() {
-        return month;
-    }
-
-    public void setMonth(int month) {
-        this.month = month;
-    }
-
-    public int getDayOfMonth() {
-        return dayOfMonth;
-    }
-
-    public void setDayOfMonth(int dayOfMonth) {
-        this.dayOfMonth = dayOfMonth;
-    }
 
     public BigDecimal getMoney() {
         return money;

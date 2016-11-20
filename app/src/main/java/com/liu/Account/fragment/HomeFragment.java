@@ -52,7 +52,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Adapt
     private TextView moneyIn,moneyOut,moneyAll,date;
     private int currentYear,currentMonth;
 
-    DatabaseUtil db;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -89,7 +88,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Adapt
         moneyOut.setText(getResources().getText(R.string.homeMoneyDefault));
         moneyAll.setText(getResources().getText(R.string.homeMoneyDefault));
 
-        db=new DatabaseUtil(activity,Constants.DBNAME,1);
 
         mDataArrays.clear();
         Calendar calendar=Calendar.getInstance();
@@ -100,7 +98,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Adapt
 
         List<Bill> billList= Bill.find(Bill.class,"is_Delete=? and happen_time>=?",new String[]{"0",DateUtil.getFirstDayOfMonth()+""},null,"HAPPEN_TIME desc",null);
         LogUtil.i("首页数据");
-        LogUtil.i(JSON.toJSONString(billList));
         initArray(billList);
         getMoneyCount(billList);
     }
@@ -162,14 +159,14 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Adapt
             BigDecimal spendMoney =bill.getSpendMoney();
 
             String tag=bill.getTag();
-            addToList(bill.getGmtCreate(),remark,spendMoney,bill.getHappenTime(),bill.getMoneyType(),tag);
+            addToList(bill.getGmtCreate(),remark,spendMoney,bill.getHappenTime(),bill.getMoneyType(),tag,bill.getUniqueFlag());
         }
         adapter.notifyDataSetChanged();
     }
     /**
      * 添加数据到列表
      * **/
-    private void addToList(Date createDate,String remark,BigDecimal spendMoney,Date happenTime,int moneyType,String tag){
+    private void addToList(Date createDate,String remark,BigDecimal spendMoney,Date happenTime,int moneyType,String tag,String uniqueFlag){
 
         HomeListViewData data=new HomeListViewData();
         data.setGmtCreate(createDate);
@@ -178,6 +175,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Adapt
         data.setHappenTime(happenTime);
         data.setMoneyType(moneyType);
         data.setTag(tag);
+        data.setUniqueFlag(uniqueFlag);
         for (int i=0;i< TagConstats.tagList.length;i++){
             if (tag.equals(TagConstats.tagList[i]))
                 data.setTagId(TagConstats.tagImage[i]);
@@ -195,38 +193,14 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Adapt
             }
         }
     }
-    String unixTime,datee,rem,money,creatTime,tag,moneyType;
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        TextView n = (TextView) view.findViewById(R.id.unixTime);
-        TextView da = (TextView) view.findViewById(R.id.dateInList);
-        TextView re = (TextView) view.findViewById(R.id.remarkInList);
-        TextView mo = (TextView) view.findViewById(R.id.spendMoneyInList);
-        TextView sp= (TextView) view.findViewById(R.id.money_type);
-        TextView cr= (TextView) view.findViewById(R.id.creatTime);
-        TextView ta= (TextView) view.findViewById(R.id.tagText);
-        unixTime = n.getText().toString();
-        datee = da.getText().toString();
-        rem = re.getText().toString();
-        money = mo.getText().toString();
-        creatTime=cr.getText().toString();
-        tag=ta.getText().toString();
-        String mon=sp.getText().toString();
-        if (mon.equals("+")){
-            moneyType="收入";
-        }else {
-            moneyType="支出";
-        }
-        Bundle bundle=new Bundle();
-        bundle.putString("money",money);
-        bundle.putString("remark",rem);
-        bundle.putString("date",datee);
-        bundle.putString("tag",tag);
-        bundle.putString("moneyType",moneyType);
-        bundle.putString("creatTime", creatTime);
-        bundle.putString("unixTime", unixTime);
+        TextView uniqueFlag = (TextView) view.findViewById(R.id.uniqueFlag);
+
+        String uniqueFlagStr = uniqueFlag.getText().toString();
+        LogUtil.e("uniqueFlagStr:"+uniqueFlagStr);
         Intent it=new Intent(activity,LookBillActivity.class);
-        it.putExtras(bundle);
+        it.putExtra("uniqueFlag",uniqueFlagStr);
         activity.startActivity(it);
      }
     public void onResume() {

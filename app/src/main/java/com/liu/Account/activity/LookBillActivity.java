@@ -53,9 +53,7 @@ public class LookBillActivity extends AutoLayoutActivity {
     private TextView mLookBillRemark;
     private Button mLook_bill_modify;
 
-    private DatabaseUtil db;
-    private String unixTime;
-    private Bundle bundle;
+    private String uniqueFlag="";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,22 +63,34 @@ public class LookBillActivity extends AutoLayoutActivity {
         StatusBarUtil.setTransparentStatusBar(this);
         initTop();
         bindViews();
-        db=new DatabaseUtil(context, Constants.DBNAME,1);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         Intent it=getIntent();
-        bundle=it.getExtras();
-        mLookBillMoney.setText(bundle.getString("money")+"元");
-        mLookBillCreatTime.setText(bundle.getString("creatTime"));
-        unixTime=bundle.getString("unixTime");
-        long unixTim=Long.parseLong(unixTime);
-        mLookBillOutTime.setText(DateUtil.getStringByFormat(unixTim, DateUtil.dateFormatYMDHMSw));
-        mLookBillRemark.setText(bundle.getString("remark"));
-        mLookBillTag.setText(bundle.getString("tag"));
-        mLookBillType.setText(bundle.getString("moneyType"));
+        uniqueFlag=it.getStringExtra("uniqueFlag");
+        LogUtil.e("uniqueFlag:"+uniqueFlag);
+        List<Bill> billList=Bill.find(Bill.class,"UNIQUE_FLAG=?",uniqueFlag);
+
+        Bill bill=new Bill();
+        if (billList!=null&&billList.size()>0){
+            bill=billList.get(0);
+        }
+        mLookBillMoney.setText(bill.getSpendMoney()+"元");
+        String createTime=DateUtil.getStringByFormat(bill.getGmtCreate(),DateUtil.dateFormatYMDHMS);
+        mLookBillCreatTime.setText(createTime);
+        String happenTime=DateUtil.getStringByFormat(bill.getHappenTime(),DateUtil.dateFormatYMDHMS);
+        mLookBillOutTime.setText(happenTime);
+        mLookBillRemark.setText(bill.getRemark());
+        mLookBillTag.setText(bill.getTag());
+        String moneyType="";
+        if (bill.getMoneyType()==Bill.MONEY_TYPE_IN){
+            moneyType="收入";
+        }else {
+            moneyType="支出";
+        }
+        mLookBillType.setText(moneyType);
         ////  16-1-25 查看账单
         Map<String,String> map = new HashMap<String,String>();
         try{
@@ -95,16 +105,7 @@ public class LookBillActivity extends AutoLayoutActivity {
         JSONObject dataJson=new JSONObject();
         HttpUtil.sendEventLog(context,HttpUtil.EVENT_SHOW, JSON.toJSONString(dataJson));
     }
-/**
- *  bundle.putString("money",money);
- bundle.putString("remark",rem);
- bundle.putString("date",datee);
- bundle.putString("tag",tag);
- bundle.putString("moneyType",moneyType);
- bundle.putString("creatTime",creatTime);
- bundle.putString("unixTime",unixTime);
- *
- * */
+
     private void initTop() {
         titleBack = (ImageView) findViewById(R.id.title_back);
         topText= (TextView) findViewById(R.id.title_text);
@@ -149,7 +150,7 @@ public class LookBillActivity extends AutoLayoutActivity {
                 .setPositiveButton(R.string.deleteBillPosBtm, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        List<Bill> billList=Bill.find(Bill.class,"happen_time=?", unixTime);
+                        List<Bill> billList=Bill.find(Bill.class,"UNIQUE_FLAG=?", uniqueFlag);
                         LogUtil.i("将要删除的账单数:"+billList);
                         for (Bill bill:billList){
                             if (bill!=null){
@@ -160,14 +161,6 @@ public class LookBillActivity extends AutoLayoutActivity {
                         }
 
                         ToastUtil.showShort(context, getString(R.string.deleteBillSuccess));
-//                        int i = db.delete(Constants.tableName, "unixTime=?", new String[]{unixTime});
-//                        LogUtil.i("删除影响的记录数:" + i);
-//                        if (i == 0) {
-//                            ToastUtil.showShort(context, getString(R.string.deleteBillFailed));
-//                        } else {
-//                            ToastUtil.showShort(context, getString(R.string.deleteBillSuccess));
-//                        }
-
 
                         finish();
                     }
@@ -189,7 +182,7 @@ public class LookBillActivity extends AutoLayoutActivity {
             @Override
             public void onClick(View v) {
                 Intent it = new Intent(context, ModifyBillActivity.class);
-                it.putExtras(bundle);
+                it.putExtra("uniqueFlag",uniqueFlag);
                 context.startActivity(it);
                 finish();
             }

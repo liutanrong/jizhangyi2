@@ -61,6 +61,7 @@ public class HomeListViewAdapter extends BaseAdapter {
             holder.creatTime= (TextView) convertView.findViewById(R.id.creatTime);
             holder.tag= (ImageView) convertView.findViewById(R.id.tag);
             holder.tagText= (TextView) convertView.findViewById(R.id.tagText);
+            holder.uniqueFlag= (TextView) convertView.findViewById(R.id.uniqueFlag);
             convertView.setTag(holder);
 
         }else {
@@ -84,11 +85,12 @@ public class HomeListViewAdapter extends BaseAdapter {
         holder.creatTime.setText(entity.getGmtCreate().getTime()+"");
         holder.tag.setImageResource(entity.getTagId());
         holder.tagText.setText(entity.getTag());
+        holder.uniqueFlag.setText(entity.getUniqueFlag());
 
         return convertView;
     }
     static class ViewHolder {
-        TextView unixTime,remarkInList,dateInList,spendMoneyInList,moneyType,creatTime;
+        TextView unixTime,remarkInList,dateInList,spendMoneyInList,moneyType,creatTime,uniqueFlag;
         ImageView tag;
         TextView tagText;
     }

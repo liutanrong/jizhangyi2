@@ -109,7 +109,7 @@ public class Init {
             long a= calendar.getTimeInMillis();
             if (a>thiss) {
                 LogUtil.i("自动同步ing");
-                bmob.upDatesToBmob(context, false);
+                //todo 自动同步
             }else {
                 LogUtil.i("未自动同步");
             }

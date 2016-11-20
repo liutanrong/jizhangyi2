@@ -72,7 +72,6 @@ public class AddBillActivity extends AutoLayoutActivity {
     private AlertDialog tagDialog;
     private ListView tagList;
 
-    private DatabaseUtil db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,7 +85,6 @@ public class AddBillActivity extends AutoLayoutActivity {
         initTagDialog();
         initView();
         initArray();
-        db=new DatabaseUtil(context,Constants.DBNAME,1);
     }
     //选择tag的弹出框
     private void initTagDialog() {
@@ -121,7 +119,8 @@ public class AddBillActivity extends AutoLayoutActivity {
     }
 
     private void initArray() {
-        String temp=data.getYear()+"/"+data.getMonth()+"/"+data.getDayOfMonth();
+        data.setHappenTime(new Date());
+        String temp=DateUtil.getStringByFormat(data.getHappenTime(),DateUtil.dateFormatYMDD);
         dateText.setText(temp);
 
         changeTag(TagConstats.defaultTag);
@@ -174,14 +173,8 @@ public class AddBillActivity extends AutoLayoutActivity {
                 endTime.add(Calendar.YEAR, 1);
 
                 Calendar calendar=Calendar.getInstance();
-                try{
-                    calendar.set(Calendar.YEAR,data.getYear());
-                    calendar.set(Calendar.MONTH,data.getMonth());
-                    calendar.set(Calendar.DAY_OF_MONTH,data.getDayOfMonth());
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-                calendar.add(Calendar.MONTH,-1);
+                calendar.setTime(data.getHappenTime());
+
                 dialogView.init(startTime.getTime(),
                         endTime.getTime()) //
                         .inMode(CalendarPickerView.SelectionMode.SINGLE)
@@ -200,15 +193,9 @@ public class AddBillActivity extends AutoLayoutActivity {
                                 long sd=dialogView.getSelectedDate().getTime();
                                 String tt=DateUtil.getStringByFormat(sd, DateUtil.dateFormatYMDD);
                                 dateText.setText(tt);
+                                data.setHappenTime(dialogView.getSelectedDate());
 
-                                Calendar calendar=Calendar.getInstance();
-                                calendar.setTimeInMillis(sd);
-                                calendar.add(Calendar.MONTH, 1);
-                                data.setYear(calendar.get(Calendar.YEAR));
-                                data.setDayOfMonth(calendar.get(Calendar.DAY_OF_MONTH));
-                                data.setMonth(calendar.get(Calendar.MONTH));
 
-                                data.setIsSelectTime(true);
                                 //Toast.makeText(getApplicationContext(), sd + "", Toast.LENGTH_SHORT).show();
                             }
                         })
@@ -259,22 +246,10 @@ public class AddBillActivity extends AutoLayoutActivity {
         //creatTime
         data.setCreateTime(new Date(calendar.getTimeInMillis()));
 
-        //当前日期是否为选择日期
-        if (data.getIsSelectTime())
-        {//选择过日期
-            Calendar c=Calendar.getInstance();
-            c.set(Calendar.YEAR,data.getYear());
-            c.set(Calendar.MONTH,data.getMonth()-1);
-            c.set(Calendar.DAY_OF_MONTH,data.getDayOfMonth());
-            data.setHappenTime(new Date(c.getTimeInMillis()));
-            data.setCreateTime(new Date(c.getTimeInMillis()));
-        }else {//没有选择日期
-            data.setHappenTime(new Date(calendar.getTimeInMillis()));
-            data.setCreateTime(new Date(calendar.getTimeInMillis()));
-        }
+
 
         String log=
-                "\n年："+data.getYear()+"  月:"+data.getMonth()+"  日："+data.getDayOfMonth()+
+                "\n日期："+DateUtil.getStringByFormat(data.getHappenTime(),DateUtil.dateFormatYMDD)+
                 "\n账单类型:"+data.getType()+
                 "\n账单标签:"+data.getTag() +
                 "\n账单金额:"+data.getMoney()+

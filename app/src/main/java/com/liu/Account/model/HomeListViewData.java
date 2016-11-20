@@ -17,6 +17,7 @@ public class HomeListViewData {
     private Integer tagId;
     private Date happenTime;//账单发生时间
     private Date gmtCreate;//创建账单时间
+    private String uniqueFlag;//账单唯一标识
 
 
 
@@ -100,6 +101,14 @@ public class HomeListViewData {
 
     public void setTag(String tag) {
         this.tag = tag;
+    }
+
+    public String getUniqueFlag() {
+        return uniqueFlag;
+    }
+
+    public void setUniqueFlag(String uniqueFlag) {
+        this.uniqueFlag = uniqueFlag;
     }
 
     public HomeListViewData() {

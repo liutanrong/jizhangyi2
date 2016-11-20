@@ -79,9 +79,9 @@ public class ModifyBillActivity extends AutoLayoutActivity {
     private AlertDialog tagDialog;
     private ListView tagList;
 
-    private DatabaseUtil db;
     private int year_i,month_i,day_i;
-    private String unixTime,creatTime;
+
+    String uniqueFlag="";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,7 +94,6 @@ public class ModifyBillActivity extends AutoLayoutActivity {
         initTop();//初始化顶部栏
         initTagDialog();
         initView();
-        db=new DatabaseUtil(context, Constants.DBNAME,1);
     }
     //选择tag的弹出框
     private void initTagDialog() {
@@ -132,39 +131,31 @@ public class ModifyBillActivity extends AutoLayoutActivity {
     protected void onStart() {
         super.onStart();
         Intent it=getIntent();
-        Bundle bundle=it.getExtras();
+        uniqueFlag=it.getStringExtra("uniqueFlag");
+
+        List<Bill> billList=Bill.find(Bill.class,"UNIQUE_FLAG=?",uniqueFlag);
+
+        Bill bill=new Bill();
+        if (billList!=null&&billList.size()>0){
+            bill=billList.get(0);
+        }
 
         //金额
-        moneyEdt.setText(bundle.getString("money"));
-        //时间
-        unixTime=bundle.getString("unixTime");
-        creatTime=bundle.getString("creatTime");
-        long unixTim=Long.parseLong(unixTime);
-        try {
+        moneyEdt.setText(bill.getSpendMoney().toString());
+        long happenTime= bill.getHappenTime().getTime();
 
-            SimpleDateFormat mSimpleDateFormat = new SimpleDateFormat("yyyy");
-            year_i=Integer.valueOf(mSimpleDateFormat.format(unixTim));
-            SimpleDateFormat m = new SimpleDateFormat("MM");
-            month_i=Integer.valueOf(m.format(unixTim));
-            SimpleDateFormat d = new SimpleDateFormat("dd");
-            day_i=Integer.valueOf(d.format(unixTim));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        data.setYear(year_i);
-        data.setMonth(month_i);
-        data.setDayOfMonth(day_i);
-        dateText.setText(year_i+"/"+month_i+"/"+day_i);
+        data.setHappenTime(bill.getHappenTime());
+        dateText.setText(DateUtil.getStringByFormat(bill.getHappenTime(),DateUtil.dateFormatYMDD));
         //备注
-        remarkEdt.setText(bundle.getString("remark"));
+        remarkEdt.setText(bill.getRemark());
         //tag
         for (int i=0;i<TagConstats.tagList.length;i++)
-            if (bundle.getString("tag").equals(TagConstats.tagList[i]))
+            if (bill.getTag().equals(TagConstats.tagList[i]))
                 changeTag(i);
         //moneyType
         RadioButton out= (RadioButton) findViewById(R.id.add_bill_money_out);
         RadioButton in= (RadioButton) findViewById(R.id.add_bill_money_in);
-        if (bundle.getString("moneyType").equals(getResources().getString(R.string.MoneyIn))){
+        if (bill.getMoneyType()==Bill.MONEY_TYPE_IN){
             in.setChecked(true);
             out.setChecked(false);
         }else {
@@ -219,14 +210,8 @@ public class ModifyBillActivity extends AutoLayoutActivity {
                 endTime.add(Calendar.YEAR, 1);
 
                 Calendar calendar=Calendar.getInstance();
-                try{
-                    calendar.set(Calendar.YEAR,data.getYear());
-                    calendar.set(Calendar.MONTH,data.getMonth());
-                    calendar.set(Calendar.DAY_OF_MONTH,data.getDayOfMonth());
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
-                calendar.add(Calendar.MONTH,-1);
+                calendar.setTime(data.getHappenTime());
+
                 dialogView.init(startTime.getTime(),
                         endTime.getTime()) //
                         .inMode(CalendarPickerView.SelectionMode.SINGLE)
@@ -246,13 +231,8 @@ public class ModifyBillActivity extends AutoLayoutActivity {
                                 String tt=DateUtil.getStringByFormat(sd, DateUtil.dateFormatYMDD);
                                 dateText.setText(tt);
 
-                                Calendar calendar=Calendar.getInstance();
-                                calendar.setTimeInMillis(sd);
-                                calendar.add(Calendar.MONTH,1);
-                                data.setYear(calendar.get(Calendar.YEAR));
-                                data.setDayOfMonth(calendar.get(Calendar.DAY_OF_MONTH));
-                                data.setMonth(calendar.get(Calendar.MONTH));
-                                data.setIsSelectTime(true);
+                                data.setHappenTime(dialogView.getSelectedDate());
+
                                 //Toast.makeText(getApplicationContext(), sd + "", Toast.LENGTH_SHORT).show();
                             }
                         })
@@ -280,8 +260,6 @@ public class ModifyBillActivity extends AutoLayoutActivity {
     }
 
     private void confirm() {
-        Calendar calendar=Calendar.getInstance();
-
         //选择账单类别 收入还是支出
         if (typeRadio.getCheckedRadioButtonId()==R.id.add_bill_money_in)//收入
             data.setType(Bill.MONEY_TYPE_IN);
@@ -301,43 +279,31 @@ public class ModifyBillActivity extends AutoLayoutActivity {
         data.setRemark(remarkEdt.getText().toString().trim());
 
 
-        //当前日期是否为选择日期
-        if (data.getIsSelectTime())
-        {//选择过日期
-            Calendar c=Calendar.getInstance();
-            c.set(Calendar.YEAR,data.getYear());
-            c.set(Calendar.MONTH,data.getMonth()-1);
-            c.set(Calendar.DAY_OF_MONTH,data.getDayOfMonth());
-            data.setHappenTime(new Date(c.getTimeInMillis()));
-            data.setCreateTime(new Date(c.getTimeInMillis()));
-        }else {//没有选择日期
-            data.setHappenTime(new Date(Long.parseLong(unixTime)));
-            data.setCreateTime(new Date(Long.parseLong(unixTime)));
-        }
 
         LogUtil.i(
-                "\n年：" + data.getYear() + "  月:" + data.getMonth() + "  日：" + data.getDayOfMonth() +
+                "\n日期：" +DateUtil.getStringByFormat(data.getHappenTime(),DateUtil.dateFormatYMDD)  +
                 "\n账单类型:" + data.getType() +
                 "\n账单标签:" + data.getTag() +
                 "\n账单金额:" + data.getMoney() +
                 "\n账单备注:" + data.getRemark());
 
-        List<Bill> billList=Bill.find(Bill.class,"HAPPEN_TIME=?",new String[]{data.getHappenTime().getTime()+""});
-        Bill bill=new Bill();
-        if (billList!=null&&billList.size()>0)
-            bill=billList.get(0);
+        List<Bill> billList=Bill.find(Bill.class,"UNIQUE_FLAG=?",uniqueFlag);
+        for (Bill bill:billList){
+            bill.setSpendMoney(data.getMoney());
+            bill.setRemark(data.getRemark());
+            if (bill.getHappenTime()!=null)
+                bill.setHappenTime(data.getHappenTime());
+            bill.setIsDelete(false);
+            bill.setTag(data.getTag());
+            bill.setGmtModified(new Date());
+            bill.setInstallationId(UserSettingUtil.getInstallationId(context));
+            bill.setUserId(UserSettingUtil.getUserId(context));
+            bill.setMoneyType(data.getType());
+            bill.save();
+        }
 
-        bill.setSpendMoney(data.getMoney());
-        bill.setRemark(data.getRemark());
-        bill.setHappenTime(data.getHappenTime());
-        bill.setGmtCreate(data.getCreateTime());
-        bill.setIsDelete(false);
-        bill.setTag(data.getTag());
-        bill.setGmtModified(new Date());
-        bill.setInstallationId(UserSettingUtil.getInstallationId(context));
-        bill.setUserId(UserSettingUtil.getUserId(context));
-        bill.setMoneyType(data.getType());
-        bill.save();
+
+
 
 
 
@@ -364,16 +330,6 @@ public class ModifyBillActivity extends AutoLayoutActivity {
         HttpUtil.sendEventLog(context,HttpUtil.EVENT_MODIFY, JSON.toJSONString(dataJson));
 
 
-
-        Thread thread=new Thread() {
-            @Override
-            public void run() {
-                super.run();
-                BmobNetworkUtils d = new BmobNetworkUtils(context);
-                d.upDatesToBmob(context,false);
-            }
-        };
-        thread.run();
         finish();
     }
     @Override
