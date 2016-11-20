@@ -6,8 +6,10 @@ import android.util.Log;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 
 /**
  * Created by tanrong on 2016/11/15.
@@ -18,16 +20,18 @@ public class CSVUtil {
         boolean flag=false;
         int rowCount = 0;
         int colCount = 0;
-        FileWriter fw;
+        OutputStreamWriter fw;
         BufferedWriter bfw;
         File sdCardDir = Environment.getExternalStorageDirectory();
-        File saveFile = new File(sdCardDir, filePath);
+        File saveFile = new File(sdCardDir, filePath+".csv");
         try {
 
             rowCount = c.getCount();
             colCount = c.getColumnCount();
-            fw = new FileWriter(saveFile);
+            fw = new OutputStreamWriter(new FileOutputStream(saveFile, true),"UTF-8");
+
             bfw = new BufferedWriter(fw);
+
             if (rowCount > 0) {
                 c.moveToFirst();
                 // 写入表头
