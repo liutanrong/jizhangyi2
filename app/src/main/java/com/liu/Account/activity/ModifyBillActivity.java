@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.bigkoo.pickerview.TimePickerView;
 import com.liu.Account.BmobNetwork.BmobNetworkUtils;
 import com.liu.Account.Constants.Constants;
 import com.liu.Account.Constants.TagConstats;
@@ -49,6 +50,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,7 +81,8 @@ public class ModifyBillActivity extends AutoLayoutActivity {
     private AlertDialog tagDialog;
     private ListView tagList;
 
-    private int year_i,month_i,day_i;
+
+    TimePickerView pvTime;
 
     String uniqueFlag="";
     @Override
@@ -146,6 +149,9 @@ public class ModifyBillActivity extends AutoLayoutActivity {
 
         data.setHappenTime(bill.getHappenTime());
         dateText.setText(DateUtil.getStringByFormat(bill.getHappenTime(),DateUtil.dateFormatYMDD));
+        pvTime.setTime(bill.getHappenTime());
+
+
         //备注
         remarkEdt.setText(bill.getRemark());
         //tag
@@ -197,55 +203,37 @@ public class ModifyBillActivity extends AutoLayoutActivity {
         tagImage= (ImageView) findViewById(R.id.add_bill_tag_pic);
         confirmBtn= (Button) findViewById(R.id.add_bill_confirm);
 
+        //时间选择器
+        pvTime = new TimePickerView(context, TimePickerView.Type.MONTH_DAY_HOUR_MIN);
+        //控制时间范围
+        pvTime.setCyclic(false);
+        pvTime.setCancelable(true);
+        pvTime.setTitle("账单发生时间");
+
+        //时间选择后回调
+        pvTime.setOnTimeSelectListener(new TimePickerView.OnTimeSelectListener() {
+
+            @Override
+            public void onTimeSelect(Date date) {
+                Calendar now=Calendar.getInstance();
+                Calendar calendar=new GregorianCalendar();
+                calendar.setTime(date);
+                calendar.set(GregorianCalendar.YEAR,now.get(Calendar.YEAR));
+
+                long sd=calendar.getTime().getTime();
+                LogUtil.e("selected Time:"+sd);
+                String tt=DateUtil.getStringByFormat(sd, DateUtil.dateFormatYMDD);
+                dateText.setText(tt);
+                data.setHappenTime(calendar.getTime());
+            }
+        });
 
     }
     public void click(View v){
         switch (v.getId()){
             case R.id.add_bill_date_lin:{
                 // 点击日期框事件 选择日期
-                final CalendarPickerView dialogView= (CalendarPickerView) getLayoutInflater().inflate(R.layout.dialog_timepick,null,false);
-                Calendar startTime=Calendar.getInstance();
-                startTime.add(Calendar.YEAR,-100);
-                Calendar endTime = Calendar.getInstance();
-                endTime.add(Calendar.YEAR, 1);
-
-                Calendar calendar=Calendar.getInstance();
-                calendar.setTime(data.getHappenTime());
-
-                dialogView.init(startTime.getTime(),
-                        endTime.getTime()) //
-                        .inMode(CalendarPickerView.SelectionMode.SINGLE)
-                        .withSelectedDate(calendar.getTime());
-                //
-                AlertDialog theDialog = new AlertDialog.Builder(context) //
-                        .setTitle("请选取日期")
-                        .setView(dialogView)
-                        .setNeutralButton("取消", new DialogInterface.OnClickListener() {
-                            @Override public void onClick(DialogInterface dialogInterface, int i) {
-                                dialogInterface.dismiss();
-                            }
-                        }).setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                long sd=dialogView.getSelectedDate().getTime();
-                                String tt=DateUtil.getStringByFormat(sd, DateUtil.dateFormatYMDD);
-                                dateText.setText(tt);
-
-                                data.setHappenTime(dialogView.getSelectedDate());
-
-                                //Toast.makeText(getApplicationContext(), sd + "", Toast.LENGTH_SHORT).show();
-                            }
-                        })
-                        .create();
-                theDialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                    @Override
-                    public void onShow(DialogInterface dialogInterface) {
-                        //Log.d(TAG, "onShow: fix the dimens!");
-                        dialogView.fixDialogDimens();
-                    }
-                });
-                theDialog.show();
-
+                pvTime.show();
                 break;
             }case R.id.add_bill_tag_lin:{
                 // 16-1-24 点击标签对话框事件 选择标签
@@ -301,12 +289,6 @@ public class ModifyBillActivity extends AutoLayoutActivity {
             bill.setMoneyType(data.getType());
             bill.save();
         }
-
-
-
-
-
-
 
 
         ////  16-1-25 在云端修改
