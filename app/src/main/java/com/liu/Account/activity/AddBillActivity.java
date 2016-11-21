@@ -1,9 +1,7 @@
 package com.liu.Account.activity;
 
 import android.app.AlertDialog;
-import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -20,7 +18,6 @@ import android.widget.TextView;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.bigkoo.pickerview.TimePickerView;
-import com.liu.Account.Constants.Constants;
 import com.liu.Account.Constants.TagConstats;
 import com.liu.Account.R;
 import com.liu.Account.adapter.AddBillTagAdapter;
@@ -31,11 +28,9 @@ import com.liu.Account.database.Bill;
 import com.liu.Account.initUtils.StatusBarUtil;
 import com.liu.Account.model.AddBillData;
 import com.liu.Account.model.AddBillTagData;
-import com.liu.Account.utils.DatabaseUtil;
 import com.liu.Account.utils.HttpUtil;
 import com.liu.Account.utils.NumberUtil;
 import com.liu.Account.utils.UserSettingUtil;
-import com.squareup.timessquare.CalendarPickerView;
 import com.umeng.analytics.MobclickAgent;
 import com.zhy.autolayout.AutoLayoutActivity;
 

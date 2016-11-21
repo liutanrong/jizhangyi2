@@ -2,41 +2,23 @@ package com.liu.Account.fragment;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ExpandableListView;
 import android.widget.ListView;
-import android.widget.TextView;
 
-import com.liu.Account.Constants.TagConstats;
 import com.liu.Account.R;
-import com.liu.Account.activity.LookBillActivity;
 import com.liu.Account.adapter.AllBillFragmentAdapter;
-import com.liu.Account.adapter.AllBillListAdapter;
 import com.liu.Account.commonUtils.LogUtil;
 import com.liu.Account.database.Bill;
 import com.liu.Account.model.AllBillFragmentData;
-import com.liu.Account.model.AllBillListGroupData;
-import com.liu.Account.model.HomeListViewData;
-import com.liu.Account.utils.NumberUtil;
-import com.orm.SugarDb;
-import com.orm.util.SugarCursor;
 import com.umeng.analytics.MobclickAgent;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by deonte on 16-1-23.
