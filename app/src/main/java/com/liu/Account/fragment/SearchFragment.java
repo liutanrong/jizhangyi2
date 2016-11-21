@@ -52,7 +52,7 @@ import java.util.List;
 public class SearchFragment extends Fragment implements AdapterView.OnItemSelectedListener {
     private Activity activity;
     private View view;
-    private SearchView searchView;
+//    private SearchView searchView;
 
 
     private ListView listView;
@@ -251,27 +251,27 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
         super.onStart();
 
 
-        final MyApplication datas= (MyApplication) activity.getApplication();
-        searchView=datas.getSearchView();
-        searchView.setQueryHint("搜索账单备注...");
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                LogUtil.i("输入的搜索词" + query);
-                data.setSearchString(query);
-                queryString();
-
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                LogUtil.i("2");
-                data.setSearchString(newText);
-                queryString();
-                return false;
-            }
-        });
+//        final MyApplication datas= (MyApplication) activity.getApplication();
+//        searchView=datas.getSearchView();
+//        searchView.setQueryHint("搜索账单备注...");
+//        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+//            @Override
+//            public boolean onQueryTextSubmit(String query) {
+//                LogUtil.i("输入的搜索词" + query);
+//                data.setSearchString(query);
+//                queryString();
+//
+//                return false;
+//            }
+//
+//            @Override
+//            public boolean onQueryTextChange(String newText) {
+//                LogUtil.i("2");
+//                data.setSearchString(newText);
+//                queryString();
+//                return false;
+//            }
+//        });
         queryString();
     }
 

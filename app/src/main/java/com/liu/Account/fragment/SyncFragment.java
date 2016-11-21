@@ -9,35 +9,26 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.alibaba.fastjson.JSON;
 import com.liu.Account.BmobRespose.BmobUsers;
 import com.liu.Account.Constants.Constants;
 import com.liu.Account.R;
 import com.liu.Account.activity.LoginActivity;
 import com.liu.Account.commonUtils.DateUtil;
-import com.liu.Account.commonUtils.LogUtil;
 import com.liu.Account.commonUtils.PrefsUtil;
 import com.liu.Account.commonUtils.ToastUtil;
-import com.liu.Account.BmobNetwork.BmobNetworkUtils;
 import com.liu.Account.database.Bill;
 import com.liu.Account.network.BackupManager;
 import com.liu.Account.utils.CSVUtil;
 import com.liu.Account.utils.UserSettingUtil;
 import com.umeng.analytics.MobclickAgent;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 

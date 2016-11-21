@@ -11,15 +11,15 @@
             android:icon="@drawable/ic_menu_sync"
             android:title="@string/menu_sync" />
         <item
+            android:visible="false"
             android:id="@+id/menu_all_bill"
-            android:icon="@drawable/ic_menu_all"
-            android:title="账单总览" />
+            android:icon="@drawable/ic_menu_search"
+            android:title="@string/menu_all_bill" />
         <item
             android:id="@+id/menu_search"
-            android:icon="@drawable/ic_menu_search"
-            android:title="@string/menu_search" />
+            android:icon="@drawable/ic_menu_all"
+            android:title="@string/menu_all_bill" />
         <item
-            android:visible="false"
             android:id="@+id/menu_analysis"
             android:icon="@drawable/ic_menu_analysis"
             android:title="@string/menu_analysis" />

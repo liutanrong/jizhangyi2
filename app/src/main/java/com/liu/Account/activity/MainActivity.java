@@ -85,8 +85,8 @@ public class MainActivity extends AutoLayoutActivity
 
     private Context context;
 
-    private MenuItem searchItem;
-    private SearchView searchView;
+//    private MenuItem searchItem;
+//    private SearchView searchView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -287,7 +287,7 @@ public class MainActivity extends AutoLayoutActivity
         } else if (id == R.id.menu_search) {
             position=4;
             replaceFragment(FragmentFactory.SEARCH);
-            getSupportActionBar().setTitle(R.string.menu_search);
+            getSupportActionBar().setTitle(R.string.menu_all_bill);
         } else if (id == R.id.menu_analysis) {
             position=5;
             replaceFragment(FragmentFactory.ANALYSIS);
@@ -346,15 +346,15 @@ public class MainActivity extends AutoLayoutActivity
         if (null == fragments[num]) {
             fragments[num] = FragmentFactory.createFragment(num);
         }
-        if (num==FragmentFactory.SEARCH) {
-            searchItem.setVisible(true);
-        }else {
-            try {
-                searchItem.setVisible(false);
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-        }
+//        if (num==FragmentFactory.SEARCH) {
+//            searchItem.setVisible(true);
+//        }else {
+//            try {
+//                searchItem.setVisible(false);
+//            }catch (Exception e){
+//                e.printStackTrace();
+//            }
+//        }
         getFragmentManager().beginTransaction()
                 .replace(R.id.main_fragment, fragments[num]).commit();
 
@@ -368,12 +368,12 @@ public class MainActivity extends AutoLayoutActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        searchItem=menu.findItem(R.id.action_search);
-        searchItem.setVisible(false);
-        searchView= (SearchView) MenuItemCompat.getActionView(searchItem);
-        MyApplication da= (MyApplication) getApplication();
-        da.setSearchView(searchView);
+//        getMenuInflater().inflate(R.menu.menu_main, menu);
+//        searchItem=menu.findItem(R.id.action_search);
+//        searchItem.setVisible(false);
+//        searchView= (SearchView) MenuItemCompat.getActionView(searchItem);
+//        MyApplication da= (MyApplication) getApplication();
+//        da.setSearchView(searchView);
         //// TODO: 16-1-28 搜索框标准写法
         return true;
     }
