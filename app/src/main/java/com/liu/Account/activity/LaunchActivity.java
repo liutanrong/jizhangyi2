@@ -27,7 +27,6 @@ import com.liu.Account.network.beans.JsonReceive;
 import com.liu.Account.network.beans.ResponseHook;
 import com.liu.Account.service.RepeatNetworkService;
 import com.liu.Account.utils.DatabaseUtil;
-import com.liu.Account.utils.HttpUtil;
 import com.liu.Account.utils.UserSettingUtil;
 import com.orm.SugarContext;
 import com.umeng.analytics.MobclickAgent;
@@ -97,18 +96,21 @@ public class LaunchActivity extends ConfirmPatternActivity {
             //获取installId
             InstallationDo installationDo = new InstallationDo();
             installationDo.setImei(AppUtil.getDeviceIMEI(context));
-            HttpUtil.post(MethodConstant.GET_INSTALLID, installationDo, new ResponseHook() {
-                @Override
-                public void deal(Context context, JsonReceive receive) {
-                    if (receive.getResponse() != null) {
-                        Long installId = Long.valueOf(receive.getResponse().toString());
-                        UserSettingUtil.setInstallationId(context, installId);
-                    }
-                }
-            }, new DefaultErrorHook());
+            //todo 和服务器关联,获取到installId
+//            HttpUtil.post(MethodConstant.GET_INSTALLID, installationDo, new ResponseHook() {
+//                @Override
+//                public void deal(Context context, JsonReceive receive) {
+//                    if (receive.getResponse() != null) {
+//                        Long installId = Long.valueOf(receive.getResponse().toString());
+//                        UserSettingUtil.setInstallationId(context, installId);
+//                    }
+//                }
+//            }, new DefaultErrorHook());
         }
 
-        HttpUtil.sendAccessLog(context);
+
+        //todo 上传访问纪律
+//        HttpUtil.sendAccessLog(context);
     }
 
     @Override

@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.Context;
 import android.support.v7.widget.SearchView;
 
-import com.liu.Account.network.NetworkManager;
 import com.orm.SugarContext;
 import com.zhy.http.okhttp.OkHttpUtils;
 
@@ -35,7 +34,6 @@ public class MyApplication extends Application {
         //初始化数据库
         SugarContext.init(this);
 
-        NetworkManager.getInstance().init(context);
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
 //                .addInterceptor(new LoggerInterceptor("TAG"))
                 .connectTimeout(10000L, TimeUnit.MILLISECONDS)

@@ -25,7 +25,6 @@ import com.liu.Account.database.Bill;
 import com.liu.Account.initUtils.Init;
 import com.liu.Account.initUtils.StatusBarUtil;
 import com.liu.Account.utils.DatabaseUtil;
-import com.liu.Account.utils.HttpUtil;
 import com.umeng.analytics.MobclickAgent;
 import com.zhy.autolayout.AutoLayoutActivity;
 
@@ -103,7 +102,8 @@ public class LookBillActivity extends AutoLayoutActivity {
         }
         MobclickAgent.onEventValue(context, "showAccount", map, 0);
         JSONObject dataJson=new JSONObject();
-        HttpUtil.sendEventLog(context,HttpUtil.EVENT_SHOW, JSON.toJSONString(dataJson));
+        //todo 发送访问记录   查看账单
+//        HttpUtil.sendEventLog(context,HttpUtil.EVENT_SHOW, JSON.toJSONString(dataJson));
     }
 
     private void initTop() {
@@ -140,7 +140,9 @@ public class LookBillActivity extends AutoLayoutActivity {
         MobclickAgent.onEventValue(context, "delAccount", map, 0);
 
         JSONObject dataJson=new JSONObject();
-        HttpUtil.sendEventLog(context,HttpUtil.EVENT_DELETE, JSON.toJSONString(dataJson));
+
+        //todo 发送操作纪律  删除账单
+//        HttpUtil.sendEventLog(context,HttpUtil.EVENT_DELETE, JSON.toJSONString(dataJson));
 
 
         Dialog dialog =new AlertDialog.Builder(context)

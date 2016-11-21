@@ -24,7 +24,6 @@ import com.liu.Account.commonUtils.DateUtil;
 import com.liu.Account.commonUtils.PrefsUtil;
 import com.liu.Account.commonUtils.ToastUtil;
 import com.liu.Account.database.Bill;
-import com.liu.Account.network.BackupManager;
 import com.liu.Account.utils.CSVUtil;
 import com.liu.Account.utils.UserSettingUtil;
 import com.umeng.analytics.MobclickAgent;
@@ -92,8 +91,9 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
             case R.id.sync_update:{
                 ////  16-1-26 上传数据
                 if (user!=null){
-                    BackupManager backupManager=new BackupManager(activity);
-                    backupManager.uploadData(true);
+                    //todo 上传数据
+//                    BackupManager backupManager=new BackupManager(activity);
+//                    backupManager.uploadData(true);
 
                 }else {
                     Dialog dialog =new AlertDialog.Builder(activity)
@@ -111,9 +111,10 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
                 break;
             }case R.id.sync_downland:{
                 ////  16-1-26 下载数据
+                //todo 下载数据
                 if (user!=null){
-                    BackupManager backupManager=new BackupManager(activity);
-                    backupManager.downloadData();
+//                    BackupManager backupManager=new BackupManager(activity);
+//                    backupManager.downloadData();
                 }else {
                     Dialog dialog =new AlertDialog.Builder(activity)
                             .setTitle("需要登陆")

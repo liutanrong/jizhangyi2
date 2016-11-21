@@ -51,7 +51,6 @@ import com.liu.Account.network.beans.ResponseHook;
 import com.liu.Account.network.beans.ResponseHookDeal;
 import com.liu.Account.utils.BitmapUtil;
 import com.liu.Account.utils.DatabaseUtil;
-import com.liu.Account.utils.HttpUtil;
 import com.liu.Account.utils.UserSettingUtil;
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.update.UmengUpdateAgent;
@@ -169,45 +168,47 @@ public class MainActivity extends AutoLayoutActivity
                         if (bitmap != null)
                             headerIcon.setImageBitmap(bitmap);
                             LogUtil.i("imageHead path:"+s);
-                            HttpUtil.uploadFile(s, new ResponseHookDeal() {
-                            @Override
-                            public void deal(Context context, org.json.JSONObject receive) {
-                                LogUtil.i("!!!!"+receive);
-                                JSONObject jsonObject=null;
-                                try {
-                                    jsonObject= JSON.parseObject(receive.getString("response"));
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                                if (jsonObject==null||jsonObject.getBoolean("hasError"))return;
 
-
-                                InstallationDo installationDo=new InstallationDo();
-                                installationDo.setId(UserSettingUtil.getInstallationId(context));
-                                installationDo.setUserId(UserSettingUtil.getUserId(context));
-                                String path=jsonObject.getString("path");
-
-                                installationDo.setImageHeadPath(path);
-                                HttpUtil.post(MethodConstant.UPDDATE_INSTALLATION, installationDo, new ResponseHook() {
-                                    @Override
-                                    public void deal(Context context, JsonReceive receive) {
-                                        LogUtil.i(receive.toString());
-                                    }
-                                },new DefaultErrorHook());
-
-                                UserDo userDo=new UserDo();
-                                userDo.setImageHeadPath(path);
-                                userDo.setId(installationDo.getUserId());
-                                userDo.setInstallationId(installationDo.getId());
-                                HttpUtil.post(MethodConstant.UPDATE_USER, userDo, new ResponseHook() {
-                                    @Override
-                                    public void deal(Context context, JsonReceive receive) {
-
-                                        LogUtil.i(receive.toString());
-                                    }
-                                },new DefaultErrorHook());
-                            }
-                        });
+                                //todo 上传头像
+//                            HttpUtil.uploadFile(s, new ResponseHookDeal() {
+//                            @Override
+//                            public void deal(Context context, org.json.JSONObject receive) {
+//                                LogUtil.i("!!!!"+receive);
+//                                JSONObject jsonObject=null;
+//                                try {
+//                                    jsonObject= JSON.parseObject(receive.getString("response"));
+//                                } catch (JSONException e) {
+//                                    e.printStackTrace();
+//                                }
+//                                if (jsonObject==null||jsonObject.getBoolean("hasError"))return;
+//
+//
+//                                InstallationDo installationDo=new InstallationDo();
+//                                installationDo.setId(UserSettingUtil.getInstallationId(context));
+//                                installationDo.setUserId(UserSettingUtil.getUserId(context));
+//                                String path=jsonObject.getString("path");
+//
+//                                installationDo.setImageHeadPath(path);
+//                                HttpUtil.post(MethodConstant.UPDDATE_INSTALLATION, installationDo, new ResponseHook() {
+//                                    @Override
+//                                    public void deal(Context context, JsonReceive receive) {
+//                                        LogUtil.i(receive.toString());
+//                                    }
+//                                },new DefaultErrorHook());
+//
+//                                UserDo userDo=new UserDo();
+//                                userDo.setImageHeadPath(path);
+//                                userDo.setId(installationDo.getUserId());
+//                                userDo.setInstallationId(installationDo.getId());
+//                                HttpUtil.post(MethodConstant.UPDATE_USER, userDo, new ResponseHook() {
+//                                    @Override
+//                                    public void deal(Context context, JsonReceive receive) {
+//
+//                                        LogUtil.i(receive.toString());
+//                                    }
+//                                },new DefaultErrorHook());
+//                            }
+//                        });
                     }
 
                     @Override

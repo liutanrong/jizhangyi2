@@ -36,7 +36,6 @@ import com.liu.Account.initUtils.StatusBarUtil;
 import com.liu.Account.model.AddBillData;
 import com.liu.Account.model.AddBillTagData;
 import com.liu.Account.utils.DatabaseUtil;
-import com.liu.Account.utils.HttpUtil;
 import com.liu.Account.utils.NumberUtil;
 import com.liu.Account.utils.UserSettingUtil;
 import com.orm.SugarDb;
@@ -309,7 +308,9 @@ public class ModifyBillActivity extends AutoLayoutActivity {
         dataJson.put("tag",data.getTag());
         dataJson.put("money",data.getMoney());
         dataJson.put("remark",data.getRemark());
-        HttpUtil.sendEventLog(context,HttpUtil.EVENT_MODIFY, JSON.toJSONString(dataJson));
+
+        //todo 上传操作纪律  修改账单
+//        HttpUtil.sendEventLog(context,HttpUtil.EVENT_MODIFY, JSON.toJSONString(dataJson));
 
 
         finish();

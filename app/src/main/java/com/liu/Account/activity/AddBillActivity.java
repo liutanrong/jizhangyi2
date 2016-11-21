@@ -28,7 +28,6 @@ import com.liu.Account.database.Bill;
 import com.liu.Account.initUtils.StatusBarUtil;
 import com.liu.Account.model.AddBillData;
 import com.liu.Account.model.AddBillTagData;
-import com.liu.Account.utils.HttpUtil;
 import com.liu.Account.utils.NumberUtil;
 import com.liu.Account.utils.UserSettingUtil;
 import com.umeng.analytics.MobclickAgent;
@@ -293,7 +292,9 @@ public class AddBillActivity extends AutoLayoutActivity {
         dataJson.put("tag",data.getTag());
         dataJson.put("money",data.getMoney());
         dataJson.put("remark",data.getRemark());
-        HttpUtil.sendEventLog(context,HttpUtil.EVENT_ADD, JSON.toJSONString(dataJson));
+
+        //todo 上传操作纪律  增加一条账单
+//        HttpUtil.sendEventLog(context,HttpUtil.EVENT_ADD, JSON.toJSONString(dataJson));
         finish();
     }
     @Override

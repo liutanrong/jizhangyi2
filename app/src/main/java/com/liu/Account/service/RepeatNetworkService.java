@@ -9,7 +9,6 @@ import android.support.annotation.Nullable;
 import com.liu.Account.Constants.Constants;
 import com.liu.Account.commonUtils.PrefsUtil;
 import com.liu.Account.module.Hook.DefaultErrorHook;
-import com.liu.Account.network.NetworkManager;
 import com.liu.Account.network.beans.ResponseHookDeal;
 
 import org.json.JSONException;
@@ -60,12 +59,7 @@ public class RepeatNetworkService extends Service {
                 prefsUtil.removeKey(key);
             }
             if (object==null)continue;
-            NetworkManager.getInstance().post(object, new ResponseHookDeal() {
-                @Override
-                public void deal(Context context, JSONObject receive) {
-
-                }
-            },new DefaultErrorHook());
+            //TODO 消息发送失败之后重发
         }
 
 

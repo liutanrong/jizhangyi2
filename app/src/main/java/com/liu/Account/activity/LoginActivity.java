@@ -23,7 +23,6 @@ import com.liu.Account.module.dataobject.UserDo;
 import com.liu.Account.network.beans.JsonReceive;
 import com.liu.Account.network.beans.ResponseHook;
 import com.liu.Account.utils.EncryptionUtils;
-import com.liu.Account.utils.HttpUtil;
 import com.liu.Account.utils.UserSettingUtil;
 import com.umeng.analytics.MobclickAgent;
 import com.zhy.autolayout.AutoLayoutActivity;
@@ -123,19 +122,21 @@ public class LoginActivity extends AutoLayoutActivity{
                 userDo.setPassword(EncryptionUtils.encrypt(password,userName));
                 userDo.setNickName(user1.getNickName());
 
-                HttpUtil.post(MethodConstant.ADD_USER, userDo, new ResponseHook() {
-                    @Override
-                    public void deal(Context context, JsonReceive receive) {
-                        if (receive.getResponse()!=null){
-                            if (receive.getResponse() != null) {
-                                Long userId = Long.valueOf(receive.getResponse().toString());
-                                UserSettingUtil.setUserId(context, userId);
-                                PrefsUtil d = new PrefsUtil(context, Constants.AutoUpdatePrefsName, Context.MODE_PRIVATE);
-                                d.putBoolean("isLoginAgain",true);
-                            }
-                        }
-                    }
-                },new DefaultErrorHook());
+
+                //todo 和服务器交互获得user_id
+//                HttpUtil.post(MethodConstant.ADD_USER, userDo, new ResponseHook() {
+//                    @Override
+//                    public void deal(Context context, JsonReceive receive) {
+//                        if (receive.getResponse()!=null){
+//                            if (receive.getResponse() != null) {
+//                                Long userId = Long.valueOf(receive.getResponse().toString());
+//                                UserSettingUtil.setUserId(context, userId);
+//                                PrefsUtil d = new PrefsUtil(context, Constants.AutoUpdatePrefsName, Context.MODE_PRIVATE);
+//                                d.putBoolean("isLoginAgain",true);
+//                            }
+//                        }
+//                    }
+//                },new DefaultErrorHook());
                 finish();
             }
 
