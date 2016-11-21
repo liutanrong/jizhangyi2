@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.alibaba.fastjson.JSON;
 import com.liu.Account.BmobRespose.BmobUsers;
 import com.liu.Account.Constants.Constants;
 import com.liu.Account.R;
@@ -38,6 +39,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 import cn.bmob.v3.BmobUser;
 
@@ -140,14 +142,48 @@ public class SyncFragment extends Fragment implements View.OnClickListener {
                 break;
 
             }case R.id.sync_export:{
-                Cursor cursor= Bill.getCursor(Bill.class,null,null,null,null,null);
-                String filePath= Constants.FileName+"jizhangyibackup"+DateUtil.getCurrentDate(DateUtil.dateFormatYMDHMS);
-                boolean flag=CSVUtil.ExportToCSV(cursor,filePath);
-                if (flag){
-                    ToastUtil.showShort(activity,"导出成功,文件在"+filePath);
-                }else {
-                    ToastUtil.showShort(activity,"导出失败");
-                }
+                Dialog dialog =new AlertDialog.Builder(activity)
+                        .setTitle("导出数据")
+                        .setMessage("导出的数据将存在sd卡jizhangyi目录下")
+                        .setPositiveButton("导出", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Cursor cursor= Bill.getCursor(Bill.class,null,null,null,null,null);
+                                String filePath= Constants.FileName+"jizhangyiBackup"+DateUtil.getCurrentDate(DateUtil.dateFormatYMDHMS)+".csv";
+                                boolean flag=CSVUtil.ExportToCSV(cursor,filePath);
+                                if (flag){
+                                    ToastUtil.showShort(activity,"导出成功,文件名为"+filePath);
+                                }else {
+                                    ToastUtil.showShort(activity,"导出失败");
+                                }
+                            }
+                        })
+                        .setNegativeButton("取消",null).create();
+                dialog.show();
+
+                break;
+            }case R.id.sync_import:{
+                Dialog dialog =new AlertDialog.Builder(activity)
+                        .setTitle("导入数据")
+                        .setMessage("本操作将删除您本地所有数据\n\n请将备份文件放置在sd卡jizhangyi目录下并重命名为jizhangyiBackup.csv")
+                        .setPositiveButton("删除本地数据并导入", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String filePath= Constants.FileName+"jizhangyiBackup.csv";
+                                List<Bill> billList=CSVUtil.importFromCSV(filePath);
+                                if (billList!=null){
+
+                                    Bill.deleteAll(Bill.class);
+                                    Bill.saveInTx(billList);
+                                    ToastUtil.showShort(activity,"导入成功");
+                                }else {
+                                    ToastUtil.showShort(activity,"导入失败");
+                                }
+                            }
+                        })
+                        .setNegativeButton("取消",null).create();
+                dialog.show();
+
                 break;
             }
         }
