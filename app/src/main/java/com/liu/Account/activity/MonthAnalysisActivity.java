@@ -140,7 +140,9 @@ public class MonthAnalysisActivity extends AutoLayoutActivity {
         while (mapIterator.hasNext()){
             Map.Entry<String,Double> entry=mapIterator.next();
             SliceValue sliceValue = new SliceValue(entry.getValue().floatValue(), ChartUtils.pickColor());
-            sliceValue.setLabel(entry.getKey()+":"+entry.getValue());
+            if (entry.getValue().floatValue()!=0.0){
+                sliceValue.setLabel(entry.getKey()+":"+entry.getValue());
+            }
             total+=entry.getValue().floatValue();
             values.add(sliceValue);
         }
