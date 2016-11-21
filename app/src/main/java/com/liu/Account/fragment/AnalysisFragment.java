@@ -13,9 +13,15 @@ import android.widget.Toast;
 
 import com.liu.Account.R;
 import com.liu.Account.activity.MonthAnalysisActivity;
+import com.liu.Account.commonUtils.DateUtil;
+import com.liu.Account.database.Bill;
 import com.umeng.analytics.MobclickAgent;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import lecho.lib.hellocharts.listener.PieChartOnValueSelectListener;
@@ -58,56 +64,77 @@ public class AnalysisFragment extends Fragment {
                 getActivity().startActivity(intent);
             }
         });
-
-
-
-
-        generateNegativeStackedData();
         return view;
     }
 
-    private void generateNegativeStackedData() {
+    @Override
+    public void onStart() {
+        super.onStart();
 
-        int numSubcolumns = 2;
         int numColumns = 6;
-        // Column can have many stacked subcolumns,
-        // here I use 4 stacke subcolumn in each of 4 columns.
+        long endTime=DateUtil.getLastMonthDay(new Date());
+
+
         List<Column> columns = new ArrayList<Column>();
+
         List<SubcolumnValue> values;
-        for (int i = 0; i < numColumns; ++i) {
+        Date currentDate=null;
+        for (int i = numColumns; i > 0; i--) {
+            currentDate=new Date(endTime-(i-1)*2678400000L);
+
+            InAndOutMoney money=totalValue(currentDate);
 
             values = new ArrayList<SubcolumnValue>();
-            values.add(new SubcolumnValue((float) Math.random() * 20f*-1, ChartUtils.COLOR_RED));
-            values.add(new SubcolumnValue((float) Math.random() * 20f, ChartUtils.COLOR_GREEN));
+            values.add(new SubcolumnValue(money.getInMoney(), ChartUtils.COLOR_RED));
+            values.add(new SubcolumnValue(money.getOutMoney()*-1, ChartUtils.COLOR_GREEN));
 
+            values.get(0).setLabel(getMonthFromDate(currentDate)+"\n"+money.getInMoney());
             Column column = new Column(values);
             column.setHasLabels(true);
             column.setHasLabelsOnlyForSelected(false);
             columns.add(column);
         }
 
+        generateNegativeStackedData(columns);
+    }
+    private String getMonthFromDate(Date date){
+        Calendar calendar=new GregorianCalendar();
+        calendar.setTime(date);
+        return (calendar.get(GregorianCalendar.MONTH)+1)+"月";
+    }
+
+    private InAndOutMoney totalValue(Date date){
+        BigDecimal inMoney=new BigDecimal(0);
+        BigDecimal outMoney=new BigDecimal(0);
+        long startTime= DateUtil.getFirstMonthDay(date);
+
+        long endTime=DateUtil.getLastMonthDay(date);
+
+        List<Bill> billList= Bill.find(Bill.class," is_Delete=? and happen_time>=? and happen_time<=?",new String[]{"0",startTime+"",endTime+""},null,"HAPPEN_TIME desc",null);
+
+        for (Bill bill:billList){
+            if (bill.getMoneyType() ==Bill.MONEY_TYPE_IN){
+                inMoney=inMoney.add(bill.getSpendMoney());
+            }else if (bill.getMoneyType()==Bill.MONEY_TYPE_OUT){
+                outMoney=outMoney.add(bill.getSpendMoney());
+            }
+        }
+        InAndOutMoney record=new InAndOutMoney();
+        record.setInMoney(inMoney.setScale(1,BigDecimal.ROUND_HALF_UP).floatValue());
+        record.setOutMoney(outMoney.setScale(1,BigDecimal.ROUND_HALF_UP).floatValue());
+
+        return record;
+    }
+
+    private void generateNegativeStackedData(List<Column> columns) {
+
+
+
         columnChartData = new ColumnChartData(columns);
 
         // Set stacked flag.
         columnChartData.setStacked(true);
 
-
-        Axis axisX = new Axis();
-        List<AxisValue> valueList=new ArrayList<>();
-        valueList.add(new AxisValue(1));
-        valueList.add(new AxisValue(2));
-        valueList.add(new AxisValue(3));
-        valueList.add(new AxisValue(4));
-        valueList.add(new AxisValue(5));
-        valueList.add(new AxisValue(6));
-        axisX.setValues(valueList);
-
-        Axis axisY = new Axis().setHasLines(false);
-
-        axisX.setName("月份");
-        axisY.setName("金额");
-        columnChartData.setAxisXBottom(axisX);
-        columnChartData.setAxisYLeft(null);
 
         columnChart.setColumnChartData(columnChartData);
     }
@@ -120,5 +147,25 @@ public class AnalysisFragment extends Fragment {
     public void onPause() {
         super.onPause();
         MobclickAgent.onPageEnd("AnalysisFragment");
+    }
+}
+class InAndOutMoney{
+    float inMoney;
+    float outMoney;
+
+    public float getInMoney() {
+        return inMoney;
+    }
+
+    public void setInMoney(float inMoney) {
+        this.inMoney = inMoney;
+    }
+
+    public float getOutMoney() {
+        return outMoney;
+    }
+
+    public void setOutMoney(float outMoney) {
+        this.outMoney = outMoney;
     }
 }
