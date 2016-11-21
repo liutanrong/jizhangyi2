@@ -139,12 +139,13 @@ public class MonthAnalysisActivity extends AutoLayoutActivity {
         float total= (float) 0.0;
         while (mapIterator.hasNext()){
             Map.Entry<String,Double> entry=mapIterator.next();
+            if (entry.getValue().floatValue()==0.0){
+                continue;
+            }
             float value=new BigDecimal(entry.getValue()).setScale(1, BigDecimal.ROUND_HALF_UP).floatValue();
 
             SliceValue sliceValue = new SliceValue(value, ChartUtils.pickColor());
-            if (entry.getValue().floatValue()!=0.0){
-                sliceValue.setLabel(entry.getKey()+":"+value);
-            }
+            sliceValue.setLabel(entry.getKey()+":"+value);
             total+=entry.getValue().floatValue();
             values.add(sliceValue);
         }
