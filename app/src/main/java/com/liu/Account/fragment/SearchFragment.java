@@ -354,11 +354,20 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
                         "and remark like ? " +
                         "and money_Type=? "+
                         "and tag=?";
+                String moneyType="";
+                if (data.getInOrOut().equals(getString(R.string.MoneyIn))){
+                    moneyType=Bill.MONEY_TYPE_IN+"";
+                }else if (data.getInOrOut().equals(getString(R.string.MoneyOut))){
+
+                    moneyType=Bill.MONEY_TYPE_OUT+"";
+                }
+
+
                 whereArray=new String[]{"0",
                         data.getStartDate().getTime()+"",
                         data.getEndDate().getTime()+""
                         ,"%" + data.getSearchString() + "%"
-                        ,data.getInOrOut()
+                        ,moneyType
                         ,data.getTag()};
             }
         }
