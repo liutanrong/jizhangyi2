@@ -74,6 +74,7 @@ dependencies {
     compile files('libs/volley.jar')
     compile files('libs/AMap_Location_V2.6.0_20160628.jar')
     compile 'com.github.satyan:sugar:1.5'
+    compile 'com.bigkoo:pickerview:2.1.1'
 }
 allprojects {
     repositories {

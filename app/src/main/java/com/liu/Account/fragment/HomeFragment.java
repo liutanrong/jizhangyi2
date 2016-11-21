@@ -11,10 +11,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
+import com.bigkoo.pickerview.TimePickerView;
 import com.liu.Account.Constants.Constants;
 import com.liu.Account.Constants.TagConstats;
 import com.liu.Account.R;
@@ -33,6 +35,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 
@@ -49,8 +52,12 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Adapt
     private HomeListViewAdapter adapter;
     private List<HomeListViewData> mDataArrays = new ArrayList<>();
 
-    private TextView moneyIn,moneyOut,moneyAll,date;
-    private int currentYear,currentMonth;
+    private TextView moneyIn,moneyOut,moneyAll;
+    private Button date;
+
+
+
+    TimePickerView pvTime;
 
     @Nullable
     @Override
@@ -71,18 +78,57 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Adapt
         moneyAll= (TextView) view.findViewById(R.id.home_money);
         moneyIn= (TextView) view.findViewById(R.id.home_money_in);
         moneyOut= (TextView) view.findViewById(R.id.home_money_out);
-        date= (TextView) view.findViewById(R.id.home_date);
+        date= (Button) view.findViewById(R.id.home_date);
 
         listView= (ListView) view.findViewById(R.id.home_listview);
         adapter=new HomeListViewAdapter(activity,mDataArrays);
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener(this);
+
+
+
+        //时间选择器
+        pvTime = new TimePickerView(activity, TimePickerView.Type.YEAR_MONTH);
+        //控制时间范围
+        Calendar calendar = Calendar.getInstance();
+        pvTime.setRange(2015, calendar.get(Calendar.YEAR)+1);//要在setTime 之前才有效果哦
+        pvTime.setTime(new Date());
+        pvTime.setCyclic(false);
+        pvTime.setCancelable(true);
+        pvTime.setTitle("请选择月份");
+
+        //时间选择后回调
+        pvTime.setOnTimeSelectListener(new TimePickerView.OnTimeSelectListener() {
+
+            @Override
+            public void onTimeSelect(Date date) {
+                initData(date);
+            }
+        });
+
+
+        date.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pvTime.show();
+            }
+        });
     }
 
     @Override
     public void onStart() {
         super.onStart();
+
+
+
+       initData(new Date());
+
+
+    }
+
+
+    private void initData(Date dateTime){
 
         moneyIn.setText(getResources().getText(R.string.homeMoneyDefault));
         moneyOut.setText(getResources().getText(R.string.homeMoneyDefault));
@@ -90,21 +136,28 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Adapt
 
 
         mDataArrays.clear();
-        Calendar calendar=Calendar.getInstance();
-        currentYear=calendar.get(Calendar.YEAR);
-        currentMonth=calendar.get(Calendar.MONTH)+1;
-        date.setText(currentYear + "." + currentMonth);
+
+        date.setText(DateUtil.getStringByFormat(dateTime,DateUtil.dateFormatYmDot));
 
 
-        List<Bill> billList= Bill.find(Bill.class,"is_Delete=? and happen_time>=?",new String[]{"0",DateUtil.getFirstDayOfMonth()+""},null,"HAPPEN_TIME desc",null);
+
+        long startTime= DateUtil.getFirstMonthDay(dateTime);
+
+        long endTime=DateUtil.getLastMonthDay(dateTime);
+
+
+
+        List<Bill> billList= Bill.find(Bill.class,"is_Delete=? and happen_time>=? and happen_time<=?",new String[]{"0",startTime+"",endTime+""},null,"HAPPEN_TIME desc",null);
         LogUtil.i("首页数据");
         initArray(billList);
         getMoneyCount(billList);
     }
 
     private void getMoneyCount(List<Bill> billList) {
-        if (billList==null||billList.size()==0)
+        if (billList==null||billList.size()==0) {
+            adapter.notifyDataSetChanged();
             return;
+        }
         BigDecimal _moneyIn=new BigDecimal(0);
         BigDecimal _moneyOut=new BigDecimal(0);
         BigDecimal _moneyAll=new BigDecimal(0);
@@ -151,9 +204,11 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Adapt
      * 初始化本地数据库内数据
      * **/
     private void initArray(List<Bill> billList) {
-        if (billList==null||billList.size()==0)
+        if (billList==null||billList.size()==0) {
+            adapter.notifyDataSetChanged();
             return;
-        LogUtil.i(currentYear + "." + currentMonth + "数据共有" +billList.size() + "条");
+        }
+        LogUtil.i("数据共有" +billList.size() + "条");
         for (Bill bill:billList){
             String remark = bill.getRemark();
             BigDecimal spendMoney =bill.getSpendMoney();

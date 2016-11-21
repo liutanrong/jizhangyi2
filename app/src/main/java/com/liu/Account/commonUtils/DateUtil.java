@@ -20,6 +20,7 @@ public class DateUtil {
 
     /** 时间日期格式化到年月. */
     public static final String dateFormatYM = "yyyy-MM";
+    public static final String dateFormatYmDot="yyyy.MM";
 
     /** 时间日期格式化到年月日时分. */
     public static final String dateFormatYMDHM = "yyyy-MM-dd HH:mm";
@@ -257,6 +258,26 @@ public class DateUtil {
     }
     public static long getLastDayOfMonth(){
         Calendar c=new GregorianCalendar();
+        c.set(Calendar.DATE, 1);
+        c.roll(Calendar.DATE, -1);
+        c.set(GregorianCalendar.HOUR_OF_DAY,0);
+        c.set(GregorianCalendar.MINUTE,0);
+        c.set(GregorianCalendar.SECOND, 0);
+        return c.getTimeInMillis();
+    }
+
+    public static long getFirstMonthDay(Date date){
+        Calendar c=new GregorianCalendar();
+        c.setTime(date);
+        c.set(GregorianCalendar.DAY_OF_MONTH, 1);
+        c.set(GregorianCalendar.HOUR_OF_DAY,0);
+        c.set(GregorianCalendar.MINUTE,0);
+        c.set(GregorianCalendar.SECOND,0);
+        return c.getTimeInMillis();
+    }
+    public static long getLastMonthDay(Date date){
+        Calendar c=new GregorianCalendar();
+        c.setTime(date);
         c.set(Calendar.DATE, 1);
         c.roll(Calendar.DATE, -1);
         c.set(GregorianCalendar.HOUR_OF_DAY,0);
