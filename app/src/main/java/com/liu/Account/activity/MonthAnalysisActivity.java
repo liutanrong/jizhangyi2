@@ -139,9 +139,11 @@ public class MonthAnalysisActivity extends AutoLayoutActivity {
         float total= (float) 0.0;
         while (mapIterator.hasNext()){
             Map.Entry<String,Double> entry=mapIterator.next();
-            SliceValue sliceValue = new SliceValue(entry.getValue().floatValue(), ChartUtils.pickColor());
+            float value=new BigDecimal(entry.getValue()).setScale(1, BigDecimal.ROUND_HALF_UP).floatValue();
+
+            SliceValue sliceValue = new SliceValue(value, ChartUtils.pickColor());
             if (entry.getValue().floatValue()!=0.0){
-                sliceValue.setLabel(entry.getKey()+":"+entry.getValue());
+                sliceValue.setLabel(entry.getKey()+":"+value);
             }
             total+=entry.getValue().floatValue();
             values.add(sliceValue);
@@ -169,6 +171,7 @@ public class MonthAnalysisActivity extends AutoLayoutActivity {
         pieChartData.setHasCenterCircle(true);
 
 
+        totalOutMoney=new BigDecimal(totalOutMoney).setScale(1, BigDecimal.ROUND_HALF_UP).floatValue();
         pieChartData.setCenterText1(totalOutMoney.toString()+"元");
 
         Typeface tf = Typeface.createFromAsset(mContext.getAssets(), "Roboto-Italic.ttf");
