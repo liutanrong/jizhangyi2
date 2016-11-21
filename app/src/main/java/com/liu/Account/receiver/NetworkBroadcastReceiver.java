@@ -16,7 +16,7 @@ public class NetworkBroadcastReceiver extends BroadcastReceiver {
     public static final String ACTION = "android.net.conn.CONNECTIVITY_CHANGE";
     @Override
     public void onReceive(Context context, Intent intent) {
-        // TODO Auto-generated method stub
+        //  Auto-generated method stub
         if (ACTION.equals(intent.getAction())) {
             int networkStatus=AppUtil.getCurrentNetWorkStatus(context);
 //            if (networkStatus==AppUtil.NETWORK_CLASS_UNKNOWN){

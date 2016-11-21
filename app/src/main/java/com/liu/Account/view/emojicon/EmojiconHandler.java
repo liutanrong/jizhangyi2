@@ -328,7 +328,7 @@ public final class EmojiconHandler {
                         //handle other emoji modifiers
                         int followSkip = Character.charCount(followUnicode);
 
-                        //TODO seems like we could do this for every emoji type rather than having that giant static map, maybe this is too slow?
+                        // seems like we could do this for every emoji type rather than having that giant static map, maybe this is too slow?
                         String hexUnicode = Integer.toHexString(unicode);
                         String hexFollowUnicode = Integer.toHexString(followUnicode);
 

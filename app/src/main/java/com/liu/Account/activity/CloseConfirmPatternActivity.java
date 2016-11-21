@@ -36,7 +36,6 @@ public class CloseConfirmPatternActivity extends ConfirmPatternActivity {
         patternSha1=d.getString("sha1");
         boolean i= TextUtils.equals(PatternUtils.patternToSha1String(pattern), patternSha1);
         if (i){
-            //// TODO: 16-1-28 提示信息需要更新
             d.putBoolean("isPatternOn",false);
         }else {
 

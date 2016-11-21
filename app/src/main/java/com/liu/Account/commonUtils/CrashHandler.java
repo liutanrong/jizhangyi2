@@ -144,7 +144,7 @@ public class CrashHandler implements UncaughtExceptionHandler {
     }
 
     private void uploadExceptionToServer() {
-        //TODO Upload Exception Message To Your Web Server
+        //Upload Exception Message To Your Web Server
     }
 
 }

@@ -30,7 +30,7 @@ public class LocationUtils {
                 .getSystemService(Context.LOCATION_SERVICE);
         try {
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
+                // : Consider calling
                 Location location1 = locationManager
                         .getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 Location location2 = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);

@@ -70,7 +70,7 @@ public class Mails {
 			store.connect();
 			flag=true;
 		} catch (NoSuchProviderException e) {
-			// TODO Auto-generated catch block
+			//  Auto-generated catch block
 			flag=false;
 			e.printStackTrace();
 		} catch(MessagingException e){
@@ -81,7 +81,7 @@ public class Mails {
 		return flag;
 		
 	}
-	//// TODO: 16-4-15 测试此处
+	//// : 16-4-15 测试此处
 	/***
 	 * ！！！未测验通过
 	 * 检查邮箱账户是否正确
@@ -107,7 +107,7 @@ public class Mails {
 			store.connect();
 			flag=true;
 		} catch (NoSuchProviderException e) {
-			// TODO Auto-generated catch block
+			//  Auto-generated catch block
 			flag=false;
 			e.printStackTrace();
 		} catch(MessagingException e){
@@ -143,7 +143,7 @@ public class Mails {
 			store.connect();
 			flag=true;
 		} catch (NoSuchProviderException e) {
-			// TODO Auto-generated catch block
+			//  Auto-generated catch block
 			flag=false;
 			e.printStackTrace();
 		} catch(MessagingException e){

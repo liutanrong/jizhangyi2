@@ -97,25 +97,27 @@ public class Init {
             dd.putBoolean("autoUpdateInFirst",true);
             return;
         }
-        BmobNetworkUtils bmob=new BmobNetworkUtils(context);
-        try {
 
-            PrefsUtil d = new PrefsUtil(context, Constants.AutoUpdatePrefsName, Context.MODE_PRIVATE);
-            long gap=d.getLong("gap",24*60*60*1000);
-            long lastUpdateTime=d.getLong("autoUpateTime", 0000000);
-            long thiss=lastUpdateTime+gap;
-
-            Calendar calendar=Calendar.getInstance();
-            long a= calendar.getTimeInMillis();
-            if (a>thiss) {
-                LogUtil.i("自动同步ing");
-                //todo 自动同步
-            }else {
-                LogUtil.i("未自动同步");
-            }
-        }catch (Exception e){
-           e.printStackTrace();
-        }
+        //TODO 自动上传数据
+//        BmobNetworkUtils bmob=new BmobNetworkUtils(context);
+//        try {
+//
+//            PrefsUtil d = new PrefsUtil(context, Constants.AutoUpdatePrefsName, Context.MODE_PRIVATE);
+//            long gap=d.getLong("gap",24*60*60*1000);
+//            long lastUpdateTime=d.getLong("autoUpateTime", 0000000);
+//            long thiss=lastUpdateTime+gap;
+//
+//            Calendar calendar=Calendar.getInstance();
+//            long a= calendar.getTimeInMillis();
+//            if (a>thiss) {
+//                LogUtil.i("自动同步ing");
+//                // 自动同步
+//            }else {
+//                LogUtil.i("未自动同步");
+//            }
+//        }catch (Exception e){
+//           e.printStackTrace();
+//        }
     }
     public static void toLoginAgain(final Context context){
         PrefsUtil d = new PrefsUtil(context, Constants.AutoUpdatePrefsName, Context.MODE_PRIVATE);

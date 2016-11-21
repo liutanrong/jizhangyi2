@@ -270,7 +270,7 @@ public class LaunchActivity extends ConfirmPatternActivity {
         if (i){
             mHandler.sendEmptyMessageDelayed(MSG_FINISH_LAUNCHERACTIVITY2, 0);
         }else {
-            //// TODO: 16-1-28 Bug待解决
+            //// : 16-1-28 Bug待解决
             return false;
         }
         return true;

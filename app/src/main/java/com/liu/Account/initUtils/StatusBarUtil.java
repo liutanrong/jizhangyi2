@@ -18,7 +18,7 @@ public class StatusBarUtil {
      * @param activity
      */
     public static final void setTransparentStatusBar(Activity activity){
-        // TODO: 16-1-23 设置沉浸状态栏     //
+        // : 16-1-23 设置沉浸状态栏     //
         //判断当前SDK版本号，如果是4.4以上，就是支持沉浸式状态栏的
         /**if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             SystemBarTintManager tintManager;

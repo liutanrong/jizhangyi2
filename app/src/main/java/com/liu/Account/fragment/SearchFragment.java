@@ -278,14 +278,14 @@ public class SearchFragment extends Fragment implements AdapterView.OnItemSelect
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-        //// TODO: 16-1-28 搜索的标准写法
+        // : 16-1-28 搜索的标准写法
     }
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         switch (parent.getId()){
             case R.id.search_tagType:
-                ////// TODO: 2015/12/13 tag
+                ////// : 2015/12/13 tag
                 //  datas.setTag(aOrderBy[position]);
                 data.setTag(TagConstats.TagTypeSelect[position]);
                 LogUtil.i("选择了tag:" + data.getTag());
