@@ -278,11 +278,10 @@ public class DateUtil {
     public static long getLastMonthDay(Date date){
         Calendar c=new GregorianCalendar();
         c.setTime(date);
-        c.set(Calendar.DATE, 1);
-        c.roll(Calendar.DATE, -1);
-        c.set(GregorianCalendar.HOUR_OF_DAY,0);
-        c.set(GregorianCalendar.MINUTE,0);
-        c.set(GregorianCalendar.SECOND, 0);
+        c.set(Calendar.DATE, c.getActualMaximum(Calendar.DATE));
+        c.set(GregorianCalendar.HOUR_OF_DAY,c.getActualMaximum(Calendar.HOUR_OF_DAY));
+        c.set(GregorianCalendar.MINUTE,c.getActualMaximum(Calendar.MINUTE));
+        c.set(Calendar.SECOND,c.getActualMaximum(Calendar.MINUTE));
         return c.getTimeInMillis();
     }
     /**
