@@ -12,7 +12,6 @@ import android.view.KeyEvent;
 import android.view.WindowManager;
 
 import com.liu.Account.Constants.Constants;
-import com.liu.Account.Constants.MethodConstant;
 import com.liu.Account.Constants.TagConstats;
 import com.liu.Account.R;
 import com.liu.Account.commonUtils.AppUtil;
@@ -21,10 +20,7 @@ import com.liu.Account.commonUtils.LogUtil;
 import com.liu.Account.commonUtils.PrefsUtil;
 import com.liu.Account.database.Bill;
 import com.liu.Account.initUtils.Init;
-import com.liu.Account.module.Hook.DefaultErrorHook;
 import com.liu.Account.module.dataobject.InstallationDo;
-import com.liu.Account.network.beans.JsonReceive;
-import com.liu.Account.network.beans.ResponseHook;
 import com.liu.Account.service.RepeatNetworkService;
 import com.liu.Account.utils.DatabaseUtil;
 import com.liu.Account.utils.UserSettingUtil;
@@ -47,7 +43,6 @@ import me.zhanghai.android.patternlock.PatternView;
  */
 public class LaunchActivity extends ConfirmPatternActivity {
     private Context context;
-    private DatabaseUtil db;
 
     public final int MSG_FINISH_LAUNCHERACTIVITY = 500;
     public final int MSG_FINISH_LAUNCHERACTIVITY2 = 700;
