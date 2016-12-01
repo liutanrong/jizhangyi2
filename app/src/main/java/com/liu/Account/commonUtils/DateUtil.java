@@ -254,17 +254,10 @@ public class DateUtil {
         c.set(GregorianCalendar.HOUR_OF_DAY,0);
         c.set(GregorianCalendar.MINUTE,0);
         c.set(GregorianCalendar.SECOND,0);
+        c.set(GregorianCalendar.MILLISECOND,0);
         return c.getTimeInMillis();
     }
-    public static long getLastDayOfMonth(){
-        Calendar c=new GregorianCalendar();
-        c.set(Calendar.DATE, 1);
-        c.roll(Calendar.DATE, -1);
-        c.set(GregorianCalendar.HOUR_OF_DAY,0);
-        c.set(GregorianCalendar.MINUTE,0);
-        c.set(GregorianCalendar.SECOND, 0);
-        return c.getTimeInMillis();
-    }
+
 
     public static long getFirstMonthDay(Date date){
         Calendar c=new GregorianCalendar();
@@ -273,6 +266,7 @@ public class DateUtil {
         c.set(GregorianCalendar.HOUR_OF_DAY,0);
         c.set(GregorianCalendar.MINUTE,0);
         c.set(GregorianCalendar.SECOND,0);
+        c.set(GregorianCalendar.MILLISECOND,0);
         return c.getTimeInMillis();
     }
     public static long getLastMonthDay(Date date){
@@ -282,6 +276,7 @@ public class DateUtil {
         c.set(GregorianCalendar.HOUR_OF_DAY,c.getActualMaximum(Calendar.HOUR_OF_DAY));
         c.set(GregorianCalendar.MINUTE,c.getActualMaximum(Calendar.MINUTE));
         c.set(Calendar.SECOND,c.getActualMaximum(Calendar.MINUTE));
+        c.set(GregorianCalendar.MILLISECOND,c.getMaximum(Calendar.MILLISECOND));
         return c.getTimeInMillis();
     }
     /**
